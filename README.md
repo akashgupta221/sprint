@@ -158,20 +158,20 @@ members ──owns──→ projects ──contains──→ stories ──conta
 
 ## 🔐 Security & Data Integrity
 
-### Built-In Protections
+Already in place:
 
-✓ **Input Validation**: All API payloads validated with generated Zod schemas before database writes.
-✓ **SQL Injection Prevention**: Drizzle ORM parameterizes all queries. Raw SQL blocks (e.g., the claim statement) use parameterized values for user-influenced inputs.
-✓ **Authentication**: Clerk for production (JWT-based), local dev mode with session cookies.
-✓ **Secret Hygiene**: `.env*` files and key/cert extensions gitignored. Example files committed instead.
-✓ **Error Handling**: API errors don't leak stack traces or internal details to clients.
-✓ **Email Fallback**: When SMTP is unconfigured, messages log via `jsonTransport` — no silent drops or accidental emails to real recipients.
+    Secret hygiene: .env* and common key/cert file extensions gitignored; example files committed instead.
+    Input validation: Zod schemas (generated from the OpenAPI spec) enforced on the API.
+    SQL injection: Drizzle ORM with parameterized queries throughout; the one raw SQL block (the claim statement) parameterizes all user-influenced values.
+    Authn: Clerk middleware + explicit requireAuth on protected routers.
+    Email safety: when SMTP is unset, messages log via jsonTransport rather than silently blackholing — and never leak to a real recipient.
 
-### Known Limitations (Documented & Acknowledged)
+Notes the README itself calls out as follow-ups:
 
-⚠ **Coarse Authorization**: Access controls are intentionally minimal for this solo project; fine-grained permissions (per-project, per-team) are on the roadmap.
-⚠ **No Versioned Migrations Yet**: Using Drizzle's `push` for development; production deployments should use explicit migration scripts.
-⚠ **Worker Co-Location**: Notification worker runs in the same process as the API. Future architecture separates it into a standalone service for independent scaling.
+    If secrets were ever committed historically, rotate them — git history preserves them.
+    Authorization is coarse: currently any signed-in user can see all workspace data. The README explicitly flags “harden permissions so notification data is only visible to intended users” as a to-do.
+    Drizzle push is in use; versioned migrations are planned.
+
 
 ---
 
