@@ -15,6 +15,7 @@ import {
   getGetDashboardSummaryQueryKey,
   getListNotificationsQueryKey,
 } from "@workspace/api-client-react";
+// Mentor Abhishek: The above imports are from the generated API client. They provide hooks for fetching and mutating data related to projects, stories, tasks, members, dashboard summary, and notifications. The get*QueryKey functions are used for cache invalidation with react-query.
 import { Calendar } from "@/components/ui/calendar";
 import { formatDistanceToNow } from 'date-fns';
 import { useQueryClient } from "@tanstack/react-query";
