@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Agile PM"
+version = "1.0.0"
+id = "artifacts/agile-pm"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21705
+
+[services.development]
+run = "pnpm --filter @workspace/agile-pm run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/agile-pm", "run", "build" ]
+publicDir = "artifacts/agile-pm/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21705"
+BASE_PATH = "/"

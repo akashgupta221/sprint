@@ -1,0 +1,810 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Agile Project Management API. Manages Projects → User Stories → Tasks for small teams, with asynchronous email notifications.
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: members
+    description: Team members
+  - name: projects
+    description: Projects
+  - name: stories
+    description: User stories within projects
+  - name: tasks
+    description: Tasks within user stories
+  - name: notifications
+    description: Email notifications (async outbox)
+  - name: dashboard
+    description: Aggregate dashboard views
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /members:
+    get:
+      operationId: listMembers
+      tags: [members]
+      summary: List team members
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+    post:
+      operationId: createMember
+      tags: [members]
+      summary: Create a team member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMemberInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List all projects with summary counts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectSummary"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create a project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /projects/{projectId}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get a project with its stories and tasks
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update a project
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete a project (cascades to stories and tasks)
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{projectId}/stories:
+    get:
+      operationId: listStories
+      tags: [stories]
+      summary: List user stories for a project
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StorySummary"
+    post:
+      operationId: createStory
+      tags: [stories]
+      summary: Create a user story under a project
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStoryInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Story"
+
+  /stories/{storyId}:
+    get:
+      operationId: getStory
+      tags: [stories]
+      summary: Get a single user story with tasks
+      parameters:
+        - $ref: "#/components/parameters/StoryId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoryDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateStory
+      tags: [stories]
+      summary: Update a user story
+      parameters:
+        - $ref: "#/components/parameters/StoryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStoryInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Story"
+    delete:
+      operationId: deleteStory
+      tags: [stories]
+      summary: Delete a user story (cascades to tasks)
+      parameters:
+        - $ref: "#/components/parameters/StoryId"
+      responses:
+        "204":
+          description: Deleted
+
+  /stories/{storyId}/tasks:
+    get:
+      operationId: listTasks
+      tags: [tasks]
+      summary: List tasks under a user story
+      parameters:
+        - $ref: "#/components/parameters/StoryId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+    post:
+      operationId: createTask
+      tags: [tasks]
+      summary: Create a task under a user story
+      parameters:
+        - $ref: "#/components/parameters/StoryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaskInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /tasks/{taskId}:
+    get:
+      operationId: getTask
+      tags: [tasks]
+      summary: Get a single task
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateTask
+      tags: [tasks]
+      summary: Update a task. Triggers an async email notification when assignee or status changes.
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTaskInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+    delete:
+      operationId: deleteTask
+      tags: [tasks]
+      summary: Delete a task
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      responses:
+        "204":
+          description: Deleted
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: High-level counts and breakdowns across all projects
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Recent activity across all projects (last 20 events)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityEvent"
+
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List recent notifications from the email outbox
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{notificationId}/retry:
+    post:
+      operationId: retryNotification
+      tags: [notifications]
+      summary: Manually requeue a failed notification
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+components:
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+    StoryId:
+      name: storyId
+      in: path
+      required: true
+      schema:
+        type: integer
+    TaskId:
+      name: taskId
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    Member:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, member]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, email, role, createdAt]
+
+    CreateMemberInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, member]
+          default: member
+      required: [name, email]
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+        key:
+          type: string
+          description: Short uppercase key (e.g. "WEB", "API")
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, archived, completed]
+        ownerId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, key, name, description, status, ownerId, createdAt, updatedAt]
+
+    ProjectSummary:
+      allOf:
+        - $ref: "#/components/schemas/Project"
+        - type: object
+          properties:
+            owner:
+              oneOf:
+                - $ref: "#/components/schemas/Member"
+                - type: "null"
+            storyCount:
+              type: integer
+            taskCount:
+              type: integer
+            tasksDone:
+              type: integer
+            tasksInProgress:
+              type: integer
+            tasksTodo:
+              type: integer
+          required: [owner, storyCount, taskCount, tasksDone, tasksInProgress, tasksTodo]
+
+    ProjectDetail:
+      allOf:
+        - $ref: "#/components/schemas/ProjectSummary"
+        - type: object
+          properties:
+            stories:
+              type: array
+              items:
+                $ref: "#/components/schemas/StoryDetail"
+          required: [stories]
+
+    CreateProjectInput:
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 10
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: ["string", "null"]
+        ownerId:
+          type: ["integer", "null"]
+      required: [key, name]
+
+    UpdateProjectInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, archived, completed]
+        ownerId:
+          type: ["integer", "null"]
+
+    Story:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        acceptanceCriteria:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [backlog, ready, in_progress, review, done]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        storyPoints:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, projectId, title, description, acceptanceCriteria, status, priority, storyPoints, createdAt, updatedAt]
+
+    StorySummary:
+      allOf:
+        - $ref: "#/components/schemas/Story"
+        - type: object
+          properties:
+            taskCount:
+              type: integer
+            tasksDone:
+              type: integer
+          required: [taskCount, tasksDone]
+
+    StoryDetail:
+      allOf:
+        - $ref: "#/components/schemas/Story"
+        - type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                $ref: "#/components/schemas/Task"
+          required: [tasks]
+
+    CreateStoryInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: ["string", "null"]
+        acceptanceCriteria:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+        storyPoints:
+          type: ["integer", "null"]
+      required: [title]
+
+    UpdateStoryInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        acceptanceCriteria:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [backlog, ready, in_progress, review, done]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        storyPoints:
+          type: ["integer", "null"]
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        storyId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [todo, in_progress, blocked, done]
+        assigneeId:
+          type: ["integer", "null"]
+        assignee:
+          oneOf:
+            - $ref: "#/components/schemas/Member"
+            - type: "null"
+        estimateHours:
+          type: ["number", "null"]
+        dueDate:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, storyId, title, description, status, assigneeId, assignee, estimateHours, dueDate, createdAt, updatedAt]
+
+    CreateTaskInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: ["string", "null"]
+        assigneeId:
+          type: ["integer", "null"]
+        estimateHours:
+          type: ["number", "null"]
+        dueDate:
+          type: ["string", "null"]
+          format: date-time
+        status:
+          type: string
+          enum: [todo, in_progress, blocked, done]
+          default: todo
+      required: [title]
+
+    UpdateTaskInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [todo, in_progress, blocked, done]
+        assigneeId:
+          type: ["integer", "null"]
+        estimateHours:
+          type: ["number", "null"]
+        dueDate:
+          type: ["string", "null"]
+          format: date-time
+
+    DashboardSummary:
+      type: object
+      properties:
+        projectCount:
+          type: integer
+        memberCount:
+          type: integer
+        storyCount:
+          type: integer
+        taskCount:
+          type: integer
+        tasksByStatus:
+          type: object
+          properties:
+            todo:
+              type: integer
+            in_progress:
+              type: integer
+            blocked:
+              type: integer
+            done:
+              type: integer
+          required: [todo, in_progress, blocked, done]
+        storiesByStatus:
+          type: object
+          properties:
+            backlog:
+              type: integer
+            ready:
+              type: integer
+            in_progress:
+              type: integer
+            review:
+              type: integer
+            done:
+              type: integer
+          required: [backlog, ready, in_progress, review, done]
+        notificationsPending:
+          type: integer
+        notificationsFailed:
+          type: integer
+      required: [projectCount, memberCount, storyCount, taskCount, tasksByStatus, storiesByStatus, notificationsPending, notificationsFailed]
+
+    ActivityEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        kind:
+          type: string
+          description: "Event kind (e.g. project.created, story.updated, task.assigned)"
+        message:
+          type: string
+        projectId:
+          type: ["integer", "null"]
+        storyId:
+          type: ["integer", "null"]
+        taskId:
+          type: ["integer", "null"]
+        actorId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, kind, message, projectId, storyId, taskId, actorId, createdAt]
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        kind:
+          type: string
+          description: "Notification kind (e.g. task.assigned, task.status_changed)"
+        recipientEmail:
+          type: string
+        recipientName:
+          type: ["string", "null"]
+        subject:
+          type: string
+        body:
+          type: string
+        status:
+          type: string
+          enum: [pending, sending, sent, failed, dead_letter]
+        attempts:
+          type: integer
+        maxAttempts:
+          type: integer
+        lastError:
+          type: ["string", "null"]
+        nextAttemptAt:
+          type: ["string", "null"]
+          format: date-time
+        sentAt:
+          type: ["string", "null"]
+          format: date-time
+        relatedTaskId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, kind, recipientEmail, recipientName, subject, body, status, attempts, maxAttempts, lastError, nextAttemptAt, sentAt, relatedTaskId, createdAt, updatedAt]
