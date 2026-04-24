@@ -64,10 +64,36 @@ router.get("/projects", async (_req, res): Promise<void> => {
   res.json(summaries);
 });
 
+async function normalizeCreateProjectBody(body: unknown) {
+  if (typeof body !== "object" || body === null) {
+    return body;
+  }
+
+  const normalized = { ...body } as Record<string, unknown>;
+
+  if (typeof normalized.ownerId === "string") {
+    if (normalized.ownerId.trim() === "") {
+      normalized.ownerId = null;
+    } else {
+      const parsedOwnerId = Number(normalized.ownerId);
+      normalized.ownerId = Number.isInteger(parsedOwnerId)
+        ? parsedOwnerId
+        : normalized.ownerId;
+    }
+  }
+
+  return normalized;
+}
+
 router.post("/projects", async (req, res): Promise<void> => {
-  const parsed = CreateProjectBody.safeParse(req.body);
+  const normalizedBody = await normalizeCreateProjectBody(req.body);
+  const parsed = CreateProjectBody.safeParse(normalizedBody);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
+    req.log.warn({ errors: parsed.error.errors, body: normalizedBody }, "Project validation failed");
+    res.status(400).json({ 
+      error: "Validation failed",
+      details: parsed.error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+    });
     return;
   }
   try {

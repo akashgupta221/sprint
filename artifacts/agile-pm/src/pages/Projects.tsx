@@ -18,9 +18,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 
 const projectSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  key: z.string().min(1, "Key is required").max(10, "Key is too long").toUpperCase(),
+  key: z.string().min(1, "Key is required").max(10, "Key is too long"),
   description: z.string().optional(),
-});
+}).transform(data => ({
+  ...data,
+  key: data.key.toUpperCase()
+}));
 
 export function Projects() {
   const queryClient = useQueryClient();
@@ -41,8 +44,9 @@ export function Projects() {
         setIsDialogOpen(false);
         form.reset();
       },
-      onError: (error) => {
-        toast.error(error.error || "Failed to create project");
+      onError: (error: any) => {
+        const message = error?.error || error?.message || "Failed to create project";
+        toast.error(message);
       }
     });
   }

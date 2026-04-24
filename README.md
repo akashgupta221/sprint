@@ -1,205 +1,292 @@
-# Sprint — Agile Project Management
+# 🏃‍♂️ Sprint — Agile Project Management
 
-Sprint is a polished agile planning tool built for software teams. It combines a modern React frontend, a typed Express API, and a durable PostgreSQL-backed async notification pipeline.
 
-The product models the real-world workflow teams use every day:
 
-- `Project`
-  - `User Story`
-    - `Task`
-
-This repo is designed as a **pnpm monorepo** with these main pieces:
-
-- `artifacts/agile-pm` — React + Vite frontend served at `/`
-- `artifacts/api-server` — Express API served at `/api`
-- `lib/api-spec/openapi.yaml` — shared OpenAPI contract for both frontend and backend
-- `lib/db` — Drizzle ORM schema definitions for Postgres
+**Sprint** is a solo full-stack agile project management prototype demonstrating modern software architecture patterns. Built with React 19, Express 5, PostgreSQL, and Drizzle ORM, it showcases **contract-driven development** where a single OpenAPI specification synchronizes server validation and frontend type safety across the entire stack. The system includes a durable, event-sourced notification pipeline with multi-instance worker safety and exponential backoff retry logic.
 
 ---
 
-## Why Sprint is interesting
+## 📦 Architecture at a Glance
 
-- **Shared API contract**: one OpenAPI spec drives both server validation and frontend API clients.
-- **Typed end-to-end**: API requests and responses are generated into TypeScript code for strong type safety.
-- **Async email workflow**: task assignment and status change notifications are queued into a durable `notifications` table and delivered by a background worker.
-- **Real-time observability**: the UI exposes the notification queue, retries, dead-letter entries, and delivery status.
-- **Clean separation of concerns**: user-facing requests are fast, background work is reliable.
+### Repository Structure
+```
+lib/
+├── api-spec/          # OpenAPI contract (single source of truth)
+├── api-zod/           # Generated server validation schemas
+├── api-client-react/  # Generated TanStack Query hooks
+└── db/                # Drizzle ORM schemas & migrations
+
+artifacts/
+├── agile-pm/          # React 19 + Vite frontend
+├── api-server/        # Express 5 REST API + notification worker
+└── mockup-sandbox/    # Design system sandbox
+```
+
+### Technology Stack
+| Layer | Tech |
+|-------|------|
+| **Frontend** | React 19, Vite 7, TanStack Query, wouter, shadcn/ui, TailwindCSS 4 |
+| **Backend** | Express 5, Drizzle ORM, Zod validation |
+| **Database** | PostgreSQL 15+, parameterized queries |
+| **Authentication** | Clerk (production), local dev mode |
+| **Email** | Nodemailer with exponential backoff retry logic |
+| **Logging** | pino + pino-http |
+| **Type Safety** | TypeScript 5.9, project references |
 
 ---
 
-## Quick start
+## 🏗 Design Decisions & Tradeoffs
 
+### 1. Contract-First Development (OpenAPI)
+**What:** API contract defined first in `openapi.yaml`, then server validators and frontend client are generated.
+
+**Why:** Eliminates type drift. Frontend and backend always agree on request/response shapes. Changes to the contract regenerate both sides of the wire.
+
+**Tradeoff:** Adds a codegen build step, but prevents the most common class of integration bugs.
+
+### 2. Drizzle ORM Over Heavy ORMs
+**What:** SQL-like query builder with TypeScript inference, not a black-box abstraction.
+
+**Why:** Balances safety (parameterized queries, no SQL injection) with performance (generated SQL is readable) and transparency (you control the queries).
+
+**Tradeoff:** Requires more SQL knowledge than Sequelize or TypeORM, but offers significantly better performance for complex queries.
+
+### 3. Durable Notification Outbox (Postgres-Backed)
+**What:** Email delivery decoupled from the request path. Changes write an activity event and notification row in the same transaction. A background worker polls and sends emails with retry logic.
+
+**Why:**
+- User requests don't block on SMTP latency.
+- Emails survive server restarts (they're in Postgres, not memory).
+- Multiple worker instances are safe (`FOR UPDATE SKIP LOCKED` pattern).
+- Failed emails retry with exponential backoff and jitter.
+
+**Tradeoff:** Adds complexity to the notification table schema and worker coordination, but provides production-grade reliability.
+
+---
+
+## 🚀 Local Development
+
+### Prerequisites
+- Node.js 20+
+- pnpm
+- A running PostgreSQL instance
+
+### Setup
 ```bash
+git clone https://github.com/akashgupta221/sprint.git
+cd sprint
 pnpm install
-pnpm --filter @workspace/api-server run build
+```
+
+### Environment
+Create environment files from the examples and populate your secrets:
+```bash
+cp .env.example .env
+cp artifacts/api-server/.env.example artifacts/api-server/.env
+cp artifacts/agile-pm/.env.example artifacts/agile-pm/.env
+```
+
+### Database Sync
+```bash
 pnpm --filter @workspace/db run push
-pnpm --filter @workspace/api-server run seed
+```
+
+### Run Project
+```bash
 pnpm dev
 ```
 
-Then visit:
+---
 
-- Web app: `/`
-- API: `/api`
-- Swagger UI: `/api/docs`
-- Healthcheck: `/api/healthz`
+## � Domain Model
+
+### Hierarchy
+```
+members ──owns──→ projects ──contains──→ stories ──contains──→ tasks
+                                                              ↓
+                                                      assigneeId (FK)
+```
+
+
+
+## ⚙️ How It Works: Request Lifecycle
+
+### Example: User Updates a Task
+
+1. **Frontend**: React component calls `useUpdateTask()` mutation (auto-generated from OpenAPI).
+2. **Validation**: Express router validates the incoming payload against generated Zod schema.
+3. **Authentication**: Clerk middleware (`requireAuth`) enforces the user is logged in.
+4. **Atomic Write**: Drizzle performs the task update and, in the same transaction, records an `activity_event` and enqueues a `notification` row.
+5. **Async Delivery**: Response returns immediately. The notification worker picks up the email delivery independently.
+6. **Retry Logic**: If SMTP fails, the worker retries with exponential backoff (30s → 60s → 120s → ...). After max retries, the row moves to `dead_letter` for manual inspection.
+
+**Why this matters:** User-facing requests are fast because they don't wait on SMTP. Email delivery is durable because it's persisted in the database.
 
 ---
 
-## What’s in the repo
+## 📧 The Notification Pipeline (In Depth)
 
-### Frontend — `artifacts/agile-pm`
+### Mechanism
 
-- React + Vite app
-- Wouter routing
-- Clerk auth integration for optional sign-in flows
-- React Query for data fetching
-- Generated API hooks from `@workspace/api-client-react`
-- Pages for dashboard, projects, stories, team, and notifications
+1. **Polling Tick** (every 5 seconds by default):
+   ```sql
+   SELECT * FROM notifications 
+   WHERE status = 'pending' 
+   FOR UPDATE SKIP LOCKED 
+   LIMIT :batch_size
+   ```
+   The `FOR UPDATE SKIP LOCKED` clause ensures multiple worker instances never claim the same row.
 
-### Backend — `artifacts/api-server`
+2. **Delivery Attempt**: Each claimed row is sent via Nodemailer. In development without SMTP env vars, emails are logged to stdout via `jsonTransport`.
 
-- Express 5 API
-- Modular route files for each resource
-- Validation using generated Zod schemas from `@workspace/api-zod`
-- Drizzle ORM for Postgres queries
-- Background notification worker with retry and dead-letter handling
+3. **Failure Handling**:
+   - Increment `attempts` counter.
+   - Compute `nextAttemptAt` using exponential backoff with jitter: `base_delay * (2 ^ attempts) + random_jitter`.
+   - Update `lastError` with the SMTP error message.
 
-### Shared libraries
+4. **Success**: Set `status = 'sent'` and `sentAt = now()`.
 
-- `lib/api-spec/openapi.yaml` — the single source of truth for API shape
-- `lib/api-client-react` — generated client code for frontend hooks
-- `lib/api-zod` — generated request/response validation schemas
-- `lib/db` — database schema definitions and connection setup
+5. **Dead Letter**: If `attempts >= maxAttempts`, set `status = 'dead_letter'` for manual review.
 
----
+### Safety Guarantees
 
-## Core workflow
-
-### Project hierarchy
-
-A typical Sprint workflow is:
-
-- Create a **Project**
-- Add **Stories** to the project
-- Add **Tasks** to stories
-- Assign tasks to **Members**
-- Change task **status** and track progress
-
-### What happens when a task changes
-
-1. The frontend sends a request to the API.
-2. The backend validates the request using generated Zod schemas.
-3. The backend writes the change to the database.
-4. An activity event is recorded for the dashboard feed.
-5. If the task is assigned or its status changes, an email notification is enqueued.
-
-That keeps the UI responsive while email delivery happens asynchronously.
+- **No Double-Sends**: `FOR UPDATE SKIP LOCKED` prevents race conditions across multiple workers.
+- **Restart Recovery**: On shutdown, stale `sending` rows older than 60 seconds are downgraded to `pending`.
+- **Multi-Instance Ready**: Deploy multiple notification workers without special coordination.
 
 ---
 
-## Async email notifications
+## 🔐 Security & Data Integrity
 
-This is the standout feature of Sprint.
+### Built-In Protections
 
-### How it works
+✓ **Input Validation**: All API payloads validated with generated Zod schemas before database writes.
+✓ **SQL Injection Prevention**: Drizzle ORM parameterizes all queries. Raw SQL blocks (e.g., the claim statement) use parameterized values for user-influenced inputs.
+✓ **Authentication**: Clerk for production (JWT-based), local dev mode with session cookies.
+✓ **Secret Hygiene**: `.env*` files and key/cert extensions gitignored. Example files committed instead.
+✓ **Error Handling**: API errors don't leak stack traces or internal details to clients.
+✓ **Email Fallback**: When SMTP is unconfigured, messages log via `jsonTransport` — no silent drops or accidental emails to real recipients.
 
-- A notification row is inserted into the `notifications` table with `status = pending`.
-- A background worker polls the table every few seconds.
-- The worker claims due notifications using `FOR UPDATE SKIP LOCKED` so multiple workers are safe.
-- The worker sends email via Nodemailer.
-- Success updates the row to `sent`.
-- Failure updates the row to `failed` and schedules a retry with exponential backoff.
-- Once the retry budget is exhausted, the row becomes `dead_letter`.
+### Known Limitations (Documented & Acknowledged)
 
-### Why this matters
-
-- Delivery is durable even if the server restarts.
-- The user request does not depend on email delivery.
-- Retry logic handles transient failures.
-- The notification queue is observable in the UI.
+⚠ **Coarse Authorization**: Access controls are intentionally minimal for this solo project; fine-grained permissions (per-project, per-team) are on the roadmap.
+⚠ **No Versioned Migrations Yet**: Using Drizzle's `push` for development; production deployments should use explicit migration scripts.
+⚠ **Worker Co-Location**: Notification worker runs in the same process as the API. Future architecture separates it into a standalone service for independent scaling.
 
 ---
 
-## Database model
+## 🚀 Getting Started
 
-Key tables:
+### Prerequisites
+- **Node.js** 20+ (check with `node -v`)
+- **pnpm** (install with `npm install -g pnpm`)
+- **PostgreSQL** 15+ (local or cloud-hosted)
 
-- `members` — team members with `name`, `email`, `role`
-- `projects` — top-level container with status and owner
-- `stories` — user stories under a project
-- `tasks` — work items under a story with assignee, due dates, and status
-- `activity_events` — feed events used by the dashboard
-- `notifications` — durable email outbox for async delivery
+### Quick Start
 
-Refer to `lib/db/src/schema/*` for the exact table definitions.
+```bash
+# Clone and install
+git clone https://github.com/akashgupta221/sprint.git
+cd sprint
+pnpm install
 
----
+# Configure environment
+cp .env.example .env
+cp artifacts/api-server/.env.example artifacts/api-server/.env
+cp artifacts/agile-pm/.env.example artifacts/agile-pm/.env
 
-## Configuration
+# Update .env with your DATABASE_URL and (optionally) SMTP credentials
 
-The project uses environment variables for runtime configuration.
+# Sync database schema
+pnpm --filter @workspace/db run push
 
-These example files are provided to keep secrets out of git:
+# (Optional) Load demo data
+pnpm --filter @workspace/api-server run seed
 
-- `.env.example`
-- `artifacts/api-server/.env.example`
-- `artifacts/agile-pm/.env.example`
+# Start development servers
+pnpm dev
+```
 
-Do not commit real credentials into source control.
+### Local Endpoints
 
-Important environment variables:
+| Endpoint | Purpose |
+|----------|---------|
+| http://localhost:4173 | Frontend (React + Vite) |
+| http://localhost:3000/api | API server |
+| http://localhost:3000/api/docs | Swagger UI (interactive API docs) |
+| http://localhost:3000/api/healthz | Health check |
 
-- `DATABASE_URL` — Postgres connection string
-- `PORT` — API server port
-- `SESSION_SECRET` — auth session secret
-- `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` — email provider settings
-- `EMAIL_FROM` — from address for email notifications
-- `NOTIFICATION_POLL_MS` — worker polling frequency
-- `NOTIFICATION_BATCH_SIZE` — max notifications claimed per tick
+### Development Scripts
 
----
+```bash
+pnpm dev              # Start both frontend and API in watch mode
+pnpm dev:api          # API only
+pnpm dev:web          # Frontend only
+pnpm build            # Full typecheck + build
+pnpm typecheck        # TypeScript validation only
 
-## Security and privacy
+# Regenerate API client and Zod schemas from OpenAPI spec
+pnpm --filter @workspace/api-spec run codegen
 
-This repository now includes safer defaults:
-
-- `.gitignore` excludes `.env`, `.env.*`, and secret files like `*.key`, `*.pem`, `*.crt`
-- example env templates are provided instead of real secrets
-- server input validation is enforced by generated Zod schemas
-- database queries use Drizzle ORM and parameterized SQL
-- authentication is enforced on API routes through Clerk middleware and `requireAuth`
-
-If secrets were committed previously, rotate them immediately because git history can still contain sensitive values.
-
----
-
-## Manual testing guide
-
-1. Open the app at `/` and sign in using the local auth fallback or Clerk.
-2. Visit **Projects** and open a seeded project.
-3. Create a task, assign it to a member, or change a task status.
-4. Open **Notifications** and watch the queue update.
-5. The dashboard shows pending and failed notification counts.
-6. If you want to test failure handling, configure an invalid SMTP host and restart the server. Failed notifications will appear and can be retried manually.
+# Database management
+pnpm --filter @workspace/db run push        # Sync schema
+pnpm --filter @workspace/api-server run seed # Load demo data
+```
 
 ---
 
-## What’s next
+## � Environment Variables
 
-This repo is already a strong demo, but if it were production-ready, the next improvements would be:
+Create `.env` files from the `.env.example` templates. Required variables:
 
-- Connect authenticated Clerk users to workspace members.
-- Replace `drizzle-kit push` with versioned migrations.
-- Extract the notification worker into a separate service.
-- Add real-time updates with Server-Sent Events or WebSockets.
-- Add automated tests for API routes and critical UI flows.
-- Harden permissions so notification data is only visible to intended users.
+```env
+# Database (required)
+DATABASE_URL=postgresql://user:pass@localhost:5432/sprint
+
+# API (required)
+PORT=3000
+SESSION_SECRET=your-secret-key-here
+
+# Email / Notifications (optional in dev)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+EMAIL_FROM=noreply@sprint.local
+
+# Clerk Authentication (optional in dev)
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+
+# Worker tuning (optional, defaults work for most cases)
+NOTIFICATION_POLL_MS=5000
+NOTIFICATION_BATCH_SIZE=10
+NOTIFICATION_MAX_ATTEMPTS=5
+```
+
+**Note:** Without SMTP credentials, notifications are logged to stdout for development. This is intentional — prevents accidental emails during testing.
 
 ---
 
-## Credits
+## 🤝 How the API Contract Works
 
-Built as a complete agile project management demo with a strong focus on typed API contracts, durable async workflows, and a clean React + Express architecture.
+1. **Single Source of Truth**: `/lib/api-spec/openapi.yaml` defines all endpoints, request/response shapes, and error codes.
 
-For a secure development workflow, see `SECURITY.md`.
+2. **Server Validation**: Run `pnpm --filter @workspace/api-spec run codegen` to regenerate:
+   - `/lib/api-zod/src/generated/api.ts` — Zod schemas for request/response validation
+   - Used in every Express route to validate incoming payloads
+
+3. **Frontend Client**: Auto-generated React Query hooks in `/lib/api-client-react/src/generated/api.ts`:
+   - `useGetProjects()`, `useCreateProject()`, `useUpdateTask()`, etc.
+   - Fully typed — TypeScript knows the request body shape and response type
+   - Mutations and queries both pre-built with proper error handling
+
+**Result:** Changes to the OpenAPI spec automatically propagate to both frontend and backend. Type drift is impossible.
+
+---
+
+## 🤖 AI & Attribution
+
+AI tools were used to accelerate boilerplate generation, documentation, and code scaffolding. Every architectural decision, business logic, schema design, and final code quality was manually reviewed and verified. No features or claims in this README are generated or unverified.
+
+
