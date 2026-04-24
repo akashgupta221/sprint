@@ -27,14 +27,39 @@ node_modules
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# Environment files
+.env
+.env.*
+!**/.env.example
+
+# Secret and credential files
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+*.secret
+
+# package manager artifacts
+package-lock.json
+yarn.lock
+pnpm-debug.log*
+.yarn/*
+.pnp.*
+
+# local environment overrides
+.env.local
+.local
+
 # misc
 /.sass-cache
 /connect.lock
 /coverage
 /libpeerconnection.log
-npm-debug.log
+npm-debug.log*
+yarn-debug.log*
 yarn-error.log
-testem.log
 /typings
 
 # System Files
