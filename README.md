@@ -12,6 +12,8 @@
 
 https://youtu.be/Sumf3ThXkvk
 
+🎥 Walkthrough Highlights:https://youtu.be/ZmLD1TLM-WE
+
 
 ## 📦 Architecture at a Glance
 
