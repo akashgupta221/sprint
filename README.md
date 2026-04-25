@@ -2,19 +2,7 @@
 
 # 🏃‍♂️ Sprint — Agile Project Management
 
-## 📺 Project Walkthrough Video
 
-[![Sprint Walkthrough](https://img.shields.io/badge/YouTube-Project%20Demo-red?logo=youtube)](https://youtu.be/w3N1z97hYhw)
-
-
-## 📺 Project Walkthrough Video
-
-[![Sprint Walkthrough](https://img.shields.io/badge/YouTube-Project%20Demo-red?logo=youtube)](https://youtu.be/w3N1z97hYhw)
-
-
-![License](https://img.shields.io/badge/license-MIT-green)
-![Stack](https://img.shields.io/badge/stack-React%20%7C%20Express%20%7C%20PostgreSQL-blue)
-![Package Manager](https://img.shields.io/badge/package-pnpm-blue)
 
 **Sprint** is a solo full-stack agile project management prototype demonstrating modern software architecture patterns. Built with React 19, Express 5, PostgreSQL, and Drizzle ORM, it showcases **contract-driven development** where a single OpenAPI specification synchronizes server validation and frontend type safety across the entire stack. The system includes a durable, event-sourced notification pipeline with multi-instance worker safety and exponential backoff retry logic.
 
