@@ -8,7 +8,7 @@
 
 🎥 Walkthrough Highlights: Covers project overview, architecture, key features, and a quick live demo for easy understanding.
 
-https://youtu.be/w3N1z97hYhw
+https://youtu.be/Sumf3ThXkvk
 
 
 ## 📦 Architecture at a Glance
