@@ -1,6 +1,14 @@
+
 # 🏃‍♂️ Sprint — Agile Project Management
 
+## 📺 Project Walkthrough Video
 
+[![Sprint Walkthrough](https://img.shields.io/badge/YouTube-Project%20Demo-red?logo=youtube)](https://youtu.be/w3N1z97hYhw)
+
+
+![License](https://img.shields.io/badge/license-MIT-green)
+![Stack](https://img.shields.io/badge/stack-React%20%7C%20Express%20%7C%20PostgreSQL-blue)
+![Package Manager](https://img.shields.io/badge/package-pnpm-blue)
 
 **Sprint** is a solo full-stack agile project management prototype demonstrating modern software architecture patterns. Built with React 19, Express 5, PostgreSQL, and Drizzle ORM, it showcases **contract-driven development** where a single OpenAPI specification synchronizes server validation and frontend type safety across the entire stack. The system includes a durable, event-sourced notification pipeline with multi-instance worker safety and exponential backoff retry logic.
 
@@ -112,7 +120,20 @@ members ──owns──→ projects ──contains──→ stories ──conta
                                                       assigneeId (FK)
 ```
 
+### Core Tables
 
+| Table | Purpose | Key Fields |
+|-------|---------|-----------|
+| **members** | User accounts (for this solo project: typically the project owner) | id, name, email (unique), role, createdAt |
+| **projects** | Planning initiatives | id, key (unique), name, description, status, ownerId |
+| **stories** | Epic-level work | id, projectId, title, description, acceptanceCriteria, status, priority, storyPoints |
+| **tasks** | Granular work units | id, storyId, title, description, status, assigneeId, estimateHours, dueDate |
+| **activity_events** | Audit feed | id, kind, message, projectId, storyId, taskId, createdAt |
+| **notifications** | Email outbox | id, kind, recipient_email, subject, body, status, attempts, nextAttemptAt, sentAt, lastError |
+
+All timestamps are timezone-aware with automatic `updatedAt` triggers.
+
+---
 
 ## ⚙️ How It Works: Request Lifecycle
 
