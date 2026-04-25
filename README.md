@@ -6,6 +6,11 @@
 
 ---
 
+🎥 Walkthrough Highlights: Covers project overview, architecture, key features, and a quick live demo for easy understanding.
+
+https://youtu.be/w3N1z97hYhw
+
+
 ## 📦 Architecture at a Glance
 
 ### Repository Structure
