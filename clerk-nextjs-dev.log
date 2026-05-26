@@ -17,3 +17,6 @@
 
  HEAD / 200 in 739ms (next.js: 409ms, proxy.ts: 112ms, application-code: 218ms)
  HEAD / 200 in 41ms (next.js: 4ms, proxy.ts: 8ms, application-code: 29ms)
+ GET / 200 in 61ms (next.js: 5ms, proxy.ts: 8ms, application-code: 47ms)
+[browser] Image with src "http://localhost:3000/vercel.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. (file:///Users/akashgupta/kp-sprint/sprint 2/clerk-nextjs/.next/dev/static/chunks/0r~9_next_dist_01chtn_._.js:1340:21)
+[browser] Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview (https://humane-ox-65.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js:12:3216)
