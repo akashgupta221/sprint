@@ -5,27 +5,25 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { mockupPreviewPlugin } from "./mockupPreviewPlugin";
 
+// Allow builds to run without requiring environment variables.
+// Provide safe defaults so CI/local workspace builds don't fail.
 const rawPort = process.env.PORT;
-
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
+let port = 5173; // default vite port
+if (rawPort) {
+  const n = Number(rawPort);
+  if (!Number.isNaN(n) && n > 0) {
+    port = n;
+  } else {
+    // keep default and warn the developer
+    // eslint-disable-next-line no-console
+    console.warn(`Invalid PORT value "${rawPort}", falling back to ${port}`);
+  }
+} else {
+  // eslint-disable-next-line no-console
+  console.info(`PORT not set, using default ${port}`);
 }
 
-const port = Number(rawPort);
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-const basePath = process.env.BASE_PATH;
-
-if (!basePath) {
-  throw new Error(
-    "BASE_PATH environment variable is required but was not provided.",
-  );
-}
+const basePath = process.env.BASE_PATH ?? "/";
 
 export default defineConfig({
   base: basePath,
