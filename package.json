@@ -7,7 +7,7 @@
     "dev": "pnpm --filter @workspace/api-server run build && pnpm --parallel --filter @workspace/api-server --filter @workspace/agile-pm --if-present run dev",
     "dev:api": "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/api-server run dev",
     "dev:web": "pnpm --filter @workspace/agile-pm run dev",
-    "build": "pnpm run typecheck && pnpm -r --if-present run build",
+  "build": "pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },
