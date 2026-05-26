@@ -48,7 +48,7 @@ async function loadProjectSummaries(projectId?: number) {
     .groupBy(projectsTable.id, membersTable.id)
     .orderBy(projectsTable.createdAt);
 
-  return rows.map((r) => ({
+  return rows.map((r: any) => ({
     ...r.project,
     owner: r.owner,
     storyCount: Number(r.storyCount),
@@ -88,11 +88,11 @@ async function normalizeCreateProjectBody(body: unknown) {
 router.post("/projects", async (req, res): Promise<void> => {
   const normalizedBody = await normalizeCreateProjectBody(req.body);
   const parsed = CreateProjectBody.safeParse(normalizedBody);
-  if (!parsed.success) {
+    if (!parsed.success) {
     req.log.warn({ errors: parsed.error.errors, body: normalizedBody }, "Project validation failed");
     res.status(400).json({ 
       error: "Validation failed",
-      details: parsed.error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+      details: parsed.error.errors.map((e: any) => `${(e as any).path.join('.')}: ${(e as any).message}`)
     });
     return;
   }
@@ -137,7 +137,7 @@ router.get("/projects/:projectId", async (req, res): Promise<void> => {
     .where(eq(storiesTable.projectId, params.data.projectId))
     .orderBy(storiesTable.createdAt);
 
-  const storyIds = stories.map((s) => s.id);
+  const storyIds = stories.map((s: any) => s.id);
   const allTasks = storyIds.length
     ? await db
         .select({
@@ -147,19 +147,19 @@ router.get("/projects/:projectId", async (req, res): Promise<void> => {
         .from(tasksTable)
         .leftJoin(membersTable, eq(tasksTable.assigneeId, membersTable.id))
         .where(
-          sql`${tasksTable.storyId} IN (${sql.join(storyIds.map((id) => sql`${id}`), sql`, `)})`,
+          sql`${tasksTable.storyId} IN (${sql.join(storyIds.map((id: any) => sql`${id}`), sql`, `)})`,
         )
         .orderBy(tasksTable.createdAt)
     : [];
 
   const tasksByStory = new Map<number, Array<unknown>>();
-  for (const t of allTasks) {
-    const arr = tasksByStory.get(t.task.storyId) ?? [];
-    arr.push({ ...t.task, assignee: t.assignee });
-    tasksByStory.set(t.task.storyId, arr);
+  for (const t of (allTasks as any[])) {
+    const arr = tasksByStory.get((t as any).task.storyId) ?? [];
+    arr.push({ ...(t as any).task, assignee: (t as any).assignee });
+    tasksByStory.set((t as any).task.storyId, arr);
   }
 
-  const storyDetails = stories.map((s) => ({
+  const storyDetails = stories.map((s: any) => ({
     ...s,
     tasks: tasksByStory.get(s.id) ?? [],
   }));

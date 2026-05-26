@@ -43,7 +43,7 @@ router.get("/stories/:storyId/tasks", async (req, res): Promise<void> => {
     .leftJoin(membersTable, eq(tasksTable.assigneeId, membersTable.id))
     .where(eq(tasksTable.storyId, params.data.storyId))
     .orderBy(tasksTable.createdAt);
-  res.json(rows.map((r) => ({ ...r.task, assignee: r.assignee })));
+  res.json(rows.map((r: any) => ({ ...(r as any).task, assignee: (r as any).assignee })));
 });
 
 router.post("/stories/:storyId/tasks", async (req, res): Promise<void> => {

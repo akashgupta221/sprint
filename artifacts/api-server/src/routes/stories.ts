@@ -44,7 +44,7 @@ router.get(
       .orderBy(storiesTable.createdAt);
 
     res.json(
-      rows.map((r) => ({
+      rows.map((r: any) => ({
         ...r.story,
         taskCount: Number(r.taskCount),
         tasksDone: Number(r.tasksDone),
@@ -109,7 +109,7 @@ router.get("/stories/:storyId", async (req, res): Promise<void> => {
     .orderBy(tasksTable.createdAt);
   res.json({
     ...story,
-    tasks: tasks.map((t) => ({ ...t.task, assignee: t.assignee })),
+    tasks: tasks.map((t: any) => ({ ...(t as any).task, assignee: (t as any).assignee })),
   });
 });
 

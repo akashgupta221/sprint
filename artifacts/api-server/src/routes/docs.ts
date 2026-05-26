@@ -41,7 +41,7 @@ router.get("/openapi.json", (_req, res): void => {
   res.json(spec);
 });
 
-router.use("/docs", swaggerUi.serve, swaggerUi.setup(spec, {
+router.use("/docs", swaggerUi.serve, swaggerUi.setup(spec as any, {
   customSiteTitle: "Sprint API Reference",
 }));
 
