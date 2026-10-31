@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   title: 'Sprint — Agile project management that never drops the baton',
   description:
     'Kanban, sprint planning, and a notification pipeline built on a durable Postgres outbox. Contract-first APIs, Clerk authentication, and a board that keeps tempo.',
-  metadataBase: new URL('https://sprint-pm.vercel.app'),
+  metadataBase: new URL('https://sprint-drab.vercel.app'),
   openGraph: {
     title: 'Sprint — Agile project management that never drops the baton',
     description:
