@@ -8,6 +8,8 @@
 
 ---
 
+LIVE LINK ==> https://email-workflow-manager--akashgupta18030.replit.app
+
 🎥 Walkthrough Highlights: Covers project overview, architecture, key features, and a quick live demo for easy understanding.
 
 https://youtu.be/Sumf3ThXkvk
