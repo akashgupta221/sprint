@@ -72,3 +72,7 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Agent tooling (machine-specific binaries)
+.agents/
+.codex/

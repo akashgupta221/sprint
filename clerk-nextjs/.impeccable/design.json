@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-01T00:00:00Z",
+  "title": "Design System: Sprint — The Floodlit Night Track",
+  "extensions": {
+    "colorMeta": {
+      "volt": {
+        "role": "primary",
+        "displayName": "Volt Lime",
+        "canonical": "oklch(0.9 0.2 127)",
+        "tonalRamp": [
+          "oklch(0.15 0.03 127)",
+          "oklch(0.25 0.06 127)",
+          "oklch(0.37 0.09 127)",
+          "oklch(0.5 0.13 127)",
+          "oklch(0.62 0.16 127)",
+          "oklch(0.74 0.18 127)",
+          "oklch(0.9 0.2 127)",
+          "oklch(0.96 0.1 127)"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Night Ground",
+        "canonical": "oklch(0.155 0.006 160)",
+        "tonalRamp": [
+          "oklch(0.15 0.006 160)",
+          "oklch(0.19 0.008 160)",
+          "oklch(0.23 0.008 160)",
+          "oklch(0.3 0.01 160)",
+          "oklch(0.42 0.012 160)",
+          "oklch(0.55 0.014 160)",
+          "oklch(0.72 0.02 150)",
+          "oklch(0.96 0.006 120)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Track Surface",
+        "canonical": "oklch(0.19 0.008 160)"
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Fog Ink",
+        "canonical": "oklch(0.72 0.02 150)"
+      },
+      "wave-body": {
+        "role": "accent",
+        "displayName": "Wave Lime-700",
+        "canonical": "#4D7C0F",
+        "purpose": "GradientWaves hero ocean body."
+      },
+      "wave-crest": {
+        "role": "accent",
+        "displayName": "Wave Lime-100",
+        "canonical": "#D9F99D",
+        "purpose": "GradientWaves hero crest highlights."
+      },
+      "wave-horizon": {
+        "role": "accent",
+        "displayName": "Deep Moss Fog",
+        "canonical": "#22380F",
+        "purpose": "GradientWaves horizon haze."
+      },
+      "display": {
+        "displayName": "Archivo Display",
+        "purpose": "Hero and section headlines only; stretched 110-112%."
+      },
+      "data": {
+        "displayName": "Geist Mono Data",
+        "purpose": "Measurements, file names, spec names — never marketing copy."
+      }
+    },
+    "shadows": [
+      {
+        "name": "volt-halo-sm",
+        "value": "0 2px 12px oklch(0.9 0.2 127 / 25%)",
+        "purpose": "Navbar-scale primary buttons."
+      },
+      {
+        "name": "volt-halo-lg",
+        "value": "0 6px 24px oklch(0.9 0.2 127 / 30%)",
+        "purpose": "Hero and CTA primary buttons; pairs with -2px hover lift."
+      },
+      {
+        "name": "panel-lift",
+        "value": "0 8px 32px oklch(0.05 0.01 160 / 50%)",
+        "purpose": "Lifting panels off the night ground."
+      }
+    ],
+    "motion": [
+      {
+        "name": "settle",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "The single easing family for entrances and reveals."
+      },
+      {
+        "name": "hero-unmask",
+        "value": "translateY(112%) -> none, 0.9s settle, 0.15-0.3s stagger",
+        "purpose": "The authored hero moment: headline lines rise out of a mask."
+      },
+      {
+        "name": "hero-rise",
+        "value": "opacity 0->1 + translateY(22px), 0.8s settle",
+        "purpose": "Subcopy and CTA follow the headline."
+      },
+      {
+        "name": "reveal-rise",
+        "value": "opacity + 18px rise, 0.7s settle, IntersectionObserver once",
+        "purpose": "Quiet section entrances; staggered 90-120ms across siblings."
+      },
+      {
+        "name": "reveal-clip",
+        "value": "clip-path inset(0 0 12%) -> inset(0), 0.8s settle",
+        "purpose": "Panels and video facades unfurl instead of sliding."
+      },
+      {
+        "name": "lane-dash",
+        "value": "stroke-dashoffset 220 -> 0, 1.6s settle, delay 0.4s",
+        "purpose": "Architecture diagram connectors draw when seen."
+      },
+      {
+        "name": "marquee",
+        "value": "translateX(-50%) loop, 32s linear",
+        "purpose": "Hero data strip of real spec names."
+      },
+      {
+        "name": "soft-pulse",
+        "value": "opacity 1 -> 0.45 -> 1, 1.8s ease-in-out",
+        "purpose": "Live-state dots (worker heartbeat)."
+      }
+    ],
+    "breakpoints": {
+      "sm": "640px",
+      "md": "768px",
+      "lg": "1024px"
+    },
+    "components": {
+      "button-primary": "<button class=\"inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_6px_24px_oklch(0.9_0.2_127/0.3)] transition-transform hover:-translate-y-0.5\">Start free</button>",
+      "button-ghost": "<a class=\"inline-flex h-12 items-center gap-2 rounded-full border border-border px-6 text-base font-medium text-foreground transition-colors hover:bg-accent\">See the machinery</a>",
+      "panel": "<div class=\"rounded-2xl border border-border bg-card p-6 shadow-[0_8px_32px_oklch(0.05_0.01_160/0.5)]\">…</div>",
+      "nav": "<header class=\"fixed inset-x-0 top-0 z-50 border-b border-transparent backdrop-blur-md is-scrolled:border-border is-scrolled:bg-background/80\">…</header>"
+    },
+    "narrative": {
+      "northStar": "The Floodlit Night Track",
+      "overview": "Sprint's interface is a stadium after dark: a near-black green-tinted ground, one volt-lime light carrying the page, and lane-line hairlines marking structure. The design shows machinery rather than decorating around it — boards move, queues retry, connectors draw.",
+      "keyCharacteristics": [
+        "One saturated accent (volt) is allowed to carry whole regions; everything else stays quiet and dark.",
+        "Monospace is reserved for measurements, file names, and spec names — never as a \"technical\" costume.",
+        "Motion is calm but alive: the hero's WebGL ocean is the single authored moment; everything else reveals once and settles.",
+        "Honesty is visual too: sample data is labeled, claims are real, no invented proof."
+      ],
+      "rules": [
+        {
+          "section": "Colors",
+          "rule": "The One-Light Rule. Volt is the only saturated color on the page. If a second hue must appear (amber retry states in illustrative data), it is semantic and temporary, never decorative."
+        }
+      ],
+      "dos": [
+        "Keep secondary text tinted from the green hue (ink-secondary)",
+        "Use mono for measurements and spec names",
+        "Label sample/illustrative data"
+      ],
+      "donts": [
+        "Add eyebrows/kickers above headings",
+        "Scatter identical entrance animations",
+        "Introduce a second saturated accent"
+      ]
+    }
+  }
+}
