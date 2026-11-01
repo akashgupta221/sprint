@@ -118,13 +118,30 @@ pnpm dev
 ## ⚡ Performance Notes
 
 - Dashboard aggregates computed in **one SQL round trip** (~0.4s, down from 9.8s)
+- **Route-level code splitting** — main bundle 1,079 KB → **415 KB** (−62%); pages load on demand
+- **Fully cloud-hosted** — frontend + API on Vercel, no local server needed
 - WebGL hero lazy-loaded after first paint on the marketing site
+- Composite database indexes (project/sprint/rank, task, comment, notification lookups)
 - Additive-only migrations; Neon serverless with pooled connections
 
 ## 📺 Walkthroughs
 
 - [Project overview, architecture & key features](https://youtu.be/Sumf3ThXkvk)
 - [Live demo](https://youtu.be/ZmLD1TLM-WE)
+
+## ☁️ Deployment
+
+The full product runs in the cloud — **no local server required**:
+
+- **App (frontend + API):** https://sprint-app-ten.vercel.app — Vercel (static SPA + Express as a serverless function, same-origin `/api`)
+- **Database:** Neon serverless Postgres
+- **Auth:** Clerk (Google OAuth + email)
+
+Deploy updates with:
+```bash
+pnpm --filter @workspace/agile-pm run build:cloud   # bundles frontend + API
+cd artifacts/agile-pm/deploy && vercel --prod       # ships it
+```
 
 ## 🗺 Roadmap
 
