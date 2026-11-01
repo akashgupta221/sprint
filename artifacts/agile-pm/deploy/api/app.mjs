@@ -87289,9 +87289,40 @@ router5.delete("/tasks/:taskId", async (req, res) => {
 var tasks_default = router5;
 
 // src/routes/dashboard.ts
-var import_express6 = __toESM(require_express2(), 1);
-var router6 = (0, import_express6.Router)();
-router6.get("/dashboard/summary", async (_req, res) => {
+var import_express7 = __toESM(require_express2(), 1);
+
+// src/lib/requireAuth.ts
+var requireAuth = (req, res, next) => {
+  if (process.env.NODE_ENV !== "production" || !process.env.CLERK_SECRET_KEY) {
+    req.userId = "local-user";
+    next();
+    return;
+  }
+  const auth = getAuth(req);
+  const userId = auth?.sessionClaims?.["userId"] || auth?.userId;
+  if (!userId) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  req.userId = String(userId);
+  next();
+};
+async function resolveMember(req) {
+  if (!req.userId || req.userId === "local-user") return null;
+  const user = await clerkClient.users.getUser(req.userId);
+  const email5 = user.primaryEmailAddress?.emailAddress ?? user.emailAddresses[0]?.emailAddress;
+  if (!email5) return null;
+  const name = user.fullName ?? user.username ?? email5.split("@")[0];
+  const [existing] = await db.select().from(membersTable).where(eq(membersTable.email, email5.toLowerCase()));
+  if (existing) return existing;
+  const [created] = await db.insert(membersTable).values({ name, email: email5.toLowerCase(), role: "member" }).returning();
+  return created;
+}
+
+// src/routes/dashboard.ts
+var router6 = (0, import_express7.Router)();
+router6.get("/dashboard/summary", async (req, res) => {
+  await resolveMember(req).catch(() => null);
   const result = await db.execute(sql`
     SELECT
       (SELECT COUNT(*) FROM projects) AS project_count,
@@ -87330,7 +87361,8 @@ router6.get("/dashboard/summary", async (_req, res) => {
       done: Number(row.stories_done ?? 0)
     },
     notificationsPending: Number(row.notifications_pending ?? 0),
-    notificationsFailed: Number(row.notifications_failed ?? 0)
+    notificationsFailed: Number(row.notifications_failed ?? 0),
+    emailConfigured: Boolean(process.env.SMTP_HOST)
   });
 });
 router6.get("/dashboard/activity", async (_req, res) => {
@@ -87340,8 +87372,8 @@ router6.get("/dashboard/activity", async (_req, res) => {
 var dashboard_default = router6;
 
 // src/routes/notifications.ts
-var import_express7 = __toESM(require_express2(), 1);
-var router7 = (0, import_express7.Router)();
+var import_express8 = __toESM(require_express2(), 1);
+var router7 = (0, import_express8.Router)();
 router7.get("/notifications", async (_req, res) => {
   const rows = await db.select().from(notificationsTable).orderBy(sql`${notificationsTable.createdAt} DESC`).limit(100);
   res.json(rows);
@@ -87371,7 +87403,7 @@ router7.post(
 var notifications_default = router7;
 
 // src/routes/epics.ts
-var import_express8 = __toESM(require_express2(), 1);
+var import_express9 = __toESM(require_express2(), 1);
 async function epicSummary(epicId) {
   const [agg] = await db.select({
     storyCount: sql`COUNT(*)`.as("story_count"),
@@ -87388,7 +87420,7 @@ async function epicSummary(epicId) {
     storiesDone: Number(agg?.storiesDone ?? 0)
   };
 }
-var router8 = (0, import_express8.Router)();
+var router8 = (0, import_express9.Router)();
 router8.get("/projects/:projectId/epics", async (req, res) => {
   const params = ListEpicsParams.safeParse(req.params);
   if (!params.success) {
@@ -87495,7 +87527,7 @@ router8.delete("/epics/:epicId", async (req, res) => {
 var epics_default = router8;
 
 // src/routes/sprints.ts
-var import_express9 = __toESM(require_express2(), 1);
+var import_express10 = __toESM(require_express2(), 1);
 async function sprintWithStories(sprintId) {
   const [sprint] = await db.select().from(sprintsTable).where(eq(sprintsTable.id, sprintId));
   if (!sprint) return null;
@@ -87524,7 +87556,7 @@ async function notifyProjectMembers(projectId, kind, subject, body) {
     });
   }
 }
-var router9 = (0, import_express9.Router)();
+var router9 = (0, import_express10.Router)();
 router9.get("/projects/:projectId/sprints", async (req, res) => {
   const params = ListSprintsParams.safeParse(req.params);
   if (!params.success) {
@@ -87722,6 +87754,12 @@ router9.post("/sprints/:sprintId/start", async (req, res) => {
     });
     return;
   }
+  await db.update(storiesTable).set({ status: "ready" }).where(
+    and(
+      eq(storiesTable.sprintId, sprint.id),
+      eq(storiesTable.status, "backlog")
+    )
+  );
   const [row] = await db.update(sprintsTable).set({ status: "active", startDate: /* @__PURE__ */ new Date() }).where(eq(sprintsTable.id, sprint.id)).returning();
   await recordActivity({
     kind: "sprint.started",
@@ -87809,7 +87847,7 @@ router9.get("/sprints/:sprintId/burndown", async (req, res) => {
 var sprints_default = router9;
 
 // src/routes/comments.ts
-var import_express10 = __toESM(require_express2(), 1);
+var import_express11 = __toESM(require_express2(), 1);
 var MAX_MENTIONS_PER_COMMENT = 10;
 function extractMentionTokens(body) {
   const tokens = /* @__PURE__ */ new Set();
@@ -87830,7 +87868,7 @@ async function resolveMentionedMembers(tokens) {
     );
   });
 }
-var router10 = (0, import_express10.Router)();
+var router10 = (0, import_express11.Router)();
 router10.get("/stories/:storyId/comments", async (req, res) => {
   const params = ListStoryCommentsParams.safeParse(req.params);
   if (!params.success) {
@@ -87867,10 +87905,12 @@ router10.post(
       res.status(404).json({ error: "Story not found" });
       return;
     }
+    const member = await resolveMember(req).catch(() => null);
     const [row] = await db.insert(commentsTable).values({
       projectId: story.projectId,
       storyId: story.id,
-      authorName: parsed.data.authorName ?? "Someone",
+      authorId: member?.id ?? null,
+      authorName: member?.name ?? parsed.data.authorName ?? "Someone",
       body: parsed.data.body
     }).returning();
     await recordActivity({
@@ -87880,11 +87920,11 @@ router10.post(
       storyId: story.id
     });
     const mentioned = (await resolveMentionedMembers(extractMentionTokens(row.body))).slice(0, MAX_MENTIONS_PER_COMMENT);
-    for (const member of mentioned) {
+    for (const member2 of mentioned) {
       await enqueueNotification({
         kind: "comment.mention",
-        recipientEmail: member.email,
-        recipientName: member.name,
+        recipientEmail: member2.email,
+        recipientName: member2.name,
         subject: `${row.authorName} mentioned you on "${story.title}"`,
         body: `${row.authorName} wrote: ${row.body.slice(0, 500)}`
       });
@@ -87915,10 +87955,12 @@ router10.post(
       res.status(404).json({ error: "Parent story not found" });
       return;
     }
+    const member = await resolveMember(req).catch(() => null);
     const [row] = await db.insert(commentsTable).values({
       projectId: parentStory.projectId,
       taskId: task.id,
-      authorName: parsed.data.authorName ?? "Someone",
+      authorId: member?.id ?? null,
+      authorName: member?.name ?? parsed.data.authorName ?? "Someone",
       body: parsed.data.body
     }).returning();
     await recordActivity({
@@ -87927,11 +87969,11 @@ router10.post(
       taskId: task.id
     });
     const mentioned = (await resolveMentionedMembers(extractMentionTokens(row.body))).slice(0, MAX_MENTIONS_PER_COMMENT);
-    for (const member of mentioned) {
+    for (const member2 of mentioned) {
       await enqueueNotification({
         kind: "comment.mention",
-        recipientEmail: member.email,
-        recipientName: member.name,
+        recipientEmail: member2.email,
+        recipientName: member2.name,
         subject: `${row.authorName} mentioned you on task "${task.title}"`,
         body: `${row.authorName} wrote: ${row.body.slice(0, 500)}`
       });
@@ -87955,7 +87997,7 @@ router10.delete("/comments/:commentId", async (req, res) => {
 var comments_default = router10;
 
 // src/routes/docs.ts
-var import_express11 = __toESM(require_express2(), 1);
+var import_express12 = __toESM(require_express2(), 1);
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -91020,7 +91062,7 @@ var {
 
 // src/routes/docs.ts
 var import_swagger_ui_express = __toESM(require_swagger_ui_express(), 1);
-var router11 = (0, import_express11.Router)();
+var router11 = (0, import_express12.Router)();
 function loadSpec() {
   const candidates = [
     // dev: artifacts/api-server/src/routes/docs.ts -> ../../../lib/api-spec/openapi.yaml
@@ -91050,23 +91092,6 @@ router11.use("/docs", import_swagger_ui_express.default.serve, import_swagger_ui
   customSiteTitle: "Sprint API Reference"
 }));
 var docs_default = router11;
-
-// src/lib/requireAuth.ts
-var requireAuth = (req, res, next) => {
-  if (process.env.NODE_ENV !== "production" || !process.env.CLERK_SECRET_KEY) {
-    req.userId = "local-user";
-    next();
-    return;
-  }
-  const auth = getAuth(req);
-  const userId = auth?.sessionClaims?.["userId"] || auth?.userId;
-  if (!userId) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-  req.userId = String(userId);
-  next();
-};
 
 // src/routes/index.ts
 var router12 = (0, import_express13.Router)();

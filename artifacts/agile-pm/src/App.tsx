@@ -184,12 +184,24 @@ function SignUpPage() {
 
 function HomeRedirect() {
   const auth = useAppAuth();
-  return auth.isSignedIn ? <Redirect to="/dashboard" /> : <Landing />;
+  if (!auth.isSignedIn) return <Landing />;
+  // Deep-link support: restore the page the visitor originally requested.
+  const saved = sessionStorage.getItem("sprint:redirect");
+  if (saved && saved !== "/") {
+    sessionStorage.removeItem("sprint:redirect");
+    return <Redirect to={saved} />;
+  }
+  return <Redirect to="/dashboard" />;
 }
 
 function Protected({ children }: { children: React.ReactNode }) {
   const auth = useAppAuth();
-  return auth.isSignedIn ? <Shell>{children}</Shell> : <Redirect to="/" />;
+  if (!auth.isSignedIn) {
+    // Deep-link support: remember where the visitor was headed.
+    sessionStorage.setItem("sprint:redirect", window.location.pathname + window.location.search);
+    return <Redirect to="/sign-in" />;
+  }
+  return <Shell>{children}</Shell>;
 }
 
 function ClerkQueryClientCacheInvalidator() {

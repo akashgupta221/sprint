@@ -18,6 +18,7 @@ import {
 } from "@workspace/api-zod";
 import { recordActivity } from "../lib/activity";
 import { enqueueNotification } from "../lib/notifications";
+import { resolveMember } from "../lib/requireAuth";
 
 /** Hard cap so one comment can never spam the whole outbox. */
 const MAX_MENTIONS_PER_COMMENT = 10;
@@ -101,12 +102,14 @@ router.post(
       res.status(404).json({ error: "Story not found" });
       return;
     }
+    const member = await resolveMember(req as any).catch(() => null);
     const [row] = await db
       .insert(commentsTable)
       .values({
         projectId: story.projectId,
         storyId: story.id,
-        authorName: parsed.data.authorName ?? "Someone",
+        authorId: member?.id ?? null,
+        authorName: member?.name ?? parsed.data.authorName ?? "Someone",
         body: parsed.data.body,
       })
       .returning();
@@ -165,12 +168,14 @@ router.post(
       res.status(404).json({ error: "Parent story not found" });
       return;
     }
+    const member = await resolveMember(req as any).catch(() => null);
     const [row] = await db
       .insert(commentsTable)
       .values({
         projectId: parentStory.projectId,
         taskId: task.id,
-        authorName: parsed.data.authorName ?? "Someone",
+        authorId: member?.id ?? null,
+        authorName: member?.name ?? parsed.data.authorName ?? "Someone",
         body: parsed.data.body,
       })
       .returning();

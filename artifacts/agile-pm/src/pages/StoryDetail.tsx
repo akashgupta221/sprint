@@ -68,9 +68,9 @@ const taskSchema = z.object({
   description: z.string().optional(),
   status: z.enum(["todo", "in_progress", "blocked", "done"]),
   assigneeId: z.union([
-    z.coerce.number().optional(),
     z.literal(""),
     z.literal("unassigned"),
+    z.coerce.number(),
   ]),
   estimateHours: z.coerce.number().min(0).optional().or(z.literal("")),
   dueDate: z.string().optional()
@@ -178,7 +178,9 @@ export function StoryDetail() {
     const payload = {
       ...values,
       assigneeId:
-        values.assigneeId === "" || values.assigneeId === "unassigned"
+        values.assigneeId === "" ||
+        values.assigneeId === "unassigned" ||
+        values.assigneeId === 0
           ? null
           : Number(values.assigneeId),
       estimateHours: values.estimateHours === "" ? null : Number(values.estimateHours),

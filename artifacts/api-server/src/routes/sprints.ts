@@ -312,6 +312,16 @@ router.post("/sprints/:sprintId/start", async (req, res): Promise<void> => {
     });
     return;
   }
+  // Board-ready: stories waiting in the backlog become visible on the board.
+  await db
+    .update(storiesTable)
+    .set({ status: "ready" })
+    .where(
+      and(
+        eq(storiesTable.sprintId, sprint.id),
+        eq(storiesTable.status, "backlog"),
+      ),
+    );
   const [row] = await db
     .update(sprintsTable)
     .set({ status: "active", startDate: new Date() })

@@ -1,5 +1,7 @@
 import { 
-  useListNotifications, 
+  useListNotifications,
+  useGetDashboardSummary,
+  getGetDashboardSummaryQueryKey, 
   useRetryNotification,
   getListNotificationsQueryKey 
 } from "@workspace/api-client-react";
@@ -20,6 +22,10 @@ export function Notifications() {
   const { data: notifications, isLoading } = useListNotifications({
     query: { refetchInterval: 5000, queryKey: getListNotificationsQueryKey() }
   });
+
+  const { data: summary } = useGetDashboardSummary();
+  const emailConfigured = (summary as any)?.emailConfigured === true;
+
 
   const retryNotification = useRetryNotification();
 
@@ -59,6 +65,13 @@ export function Notifications() {
 
   return (
     <div className="space-y-8">
+      {emailConfigured === false && (
+        <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
+          <strong>Email delivery is not configured yet.</strong> Notifications
+          are recorded and retried here, but no real email is sent until SMTP
+          settings are added on the server.
+        </div>
+      )}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Notifications Queue</h1>
         <p className="text-muted-foreground mt-1 max-w-3xl">

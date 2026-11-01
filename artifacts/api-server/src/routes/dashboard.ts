@@ -1,10 +1,14 @@
 import { Router, type IRouter } from "express";
 import { sql } from "drizzle-orm";
 import { db, activityTable } from "@workspace/db";
+import { resolveMember } from "../lib/requireAuth";
 
 const router: IRouter = Router();
 
-router.get("/dashboard/summary", async (_req, res): Promise<void> => {
+router.get("/dashboard/summary", async (req, res): Promise<void> => {
+  // First-login linkage: make sure the signed-in Clerk user has a member row.
+  await resolveMember(req as any).catch(() => null);
+
   // Single round trip: one SQL statement computes every aggregate.
   const result = await db.execute(sql`
     SELECT
@@ -46,6 +50,7 @@ router.get("/dashboard/summary", async (_req, res): Promise<void> => {
     },
     notificationsPending: Number(row.notifications_pending ?? 0),
     notificationsFailed: Number(row.notifications_failed ?? 0),
+    emailConfigured: Boolean(process.env.SMTP_HOST),
   });
 });
 

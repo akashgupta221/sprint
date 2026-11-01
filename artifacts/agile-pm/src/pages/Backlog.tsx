@@ -452,7 +452,7 @@ export function Backlog() {
                     {(activeSprint as any).totalPoints} pts
                   </p>
                   <p className="text-xs text-slate-400">
-                    {(activeSprint as any).storyCount} stories
+                    {(activeSprint as any).storyCount} {(activeSprint as any).storyCount === 1 ? "story" : "stories"}
                   </p>
                 </div>
                 <Button
@@ -506,7 +506,7 @@ export function Backlog() {
                 <div>
                   <CardTitle className="text-base">{sprint.name}</CardTitle>
                   <p className="text-xs text-slate-400">
-                    {(sprint as any).storyCount} stories ·{" "}
+                    {(sprint as any).storyCount} {(sprint as any).storyCount === 1 ? "story" : "stories"} ·{" "}
                     {(sprint as any).totalPoints} pts
                     {sprint.startDate &&
                       ` · ${format(new Date(sprint.startDate), "MMM d")}`}
@@ -607,7 +607,7 @@ export function Backlog() {
                     )}
                   </CardHeader>
                   <CardContent className="text-xs text-slate-400">
-                    {epic.storyCount} stories · {epic.storyPoints} pts ·{" "}
+                    {epic.storyCount} {epic.storyCount === 1 ? "story" : "stories"} · {epic.storyPoints} pts ·{" "}
                     {epic.storiesDone} done
                   </CardContent>
                 </Card>
