@@ -9,10 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://email-workflow-manager--akashgupta18030.replit.app">🌐 Live Demo</a> ·
+  <a href="https://sprint-drab.vercel.app">🌐 Live App</a> ·
   <a href="https://youtu.be/Sumf3ThXkvk">🎥 Overview Video</a> ·
-  <a href="https://youtu.be/ZmLD1TLM-WE">🎥 Demo Video</a> ·
-  <a href="https://sprint-drab.vercel.app">🚀 Next.js Marketing Site</a>
+  <a href="https://youtu.be/ZmLD1TLM-WE">🎥 Demo Video</a>
 </p>
 
 ---
