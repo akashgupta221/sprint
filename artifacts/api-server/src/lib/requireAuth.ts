@@ -4,7 +4,12 @@ import { db, membersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
 export const requireAuth: RequestHandler = (req, res, next) => {
-  if (process.env.NODE_ENV !== "production" || !process.env.CLERK_SECRET_KEY) {
+  // Production fails CLOSED: a missing secret must never open the API.
+  if (process.env.NODE_ENV === "production" && !process.env.CLERK_SECRET_KEY) {
+    res.status(500).json({ error: "Authentication is not configured" });
+    return;
+  }
+  if (process.env.NODE_ENV !== "production") {
     (req as unknown as { userId: string }).userId = "local-user";
     next();
     return;

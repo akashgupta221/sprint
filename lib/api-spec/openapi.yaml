@@ -1208,7 +1208,7 @@ components:
           type: string
         status:
           type: string
-          enum: [pending, sending, sent, failed, dead_letter]
+          enum: [pending, sending, sent, logged, failed, dead_letter]
         attempts:
           type: integer
         maxAttempts:

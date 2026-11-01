@@ -51,3 +51,8 @@ export function getEmailMode(): "smtp" | "log" {
 export function getFromAddress(): string {
   return process.env.EMAIL_FROM ?? "Sprint <no-reply@sprint.local>";
 }
+
+/** True when a real SMTP transport is configured (jsonTransport is a stub). */
+export function isEmailDeliveryConfigured(): boolean {
+  return Boolean(process.env.SMTP_HOST);
+}

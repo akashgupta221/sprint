@@ -70079,6 +70079,9 @@ function getEmailMode() {
 function getFromAddress() {
   return process.env.EMAIL_FROM ?? "Sprint <no-reply@sprint.local>";
 }
+function isEmailDeliveryConfigured() {
+  return Boolean(process.env.SMTP_HOST);
+}
 
 // src/lib/notificationWorker.ts
 var POLL_INTERVAL_MS = Number(process.env.NOTIFICATION_POLL_MS ?? "5000");
@@ -70131,11 +70134,12 @@ async function processOne(row) {
       },
       "Notification email sent"
     );
+    const delivered = isEmailDeliveryConfigured();
     await db.update(notificationsTable).set({
-      status: "sent",
+      status: delivered ? "sent" : "logged",
       attempts,
-      sentAt: /* @__PURE__ */ new Date(),
-      lastError: null
+      sentAt: delivered ? /* @__PURE__ */ new Date() : null,
+      lastError: delivered ? null : "SMTP not configured \u2014 message logged, not delivered"
     }).where(eq(notificationsTable.id, row.id));
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -86215,7 +86219,7 @@ var ListNotificationsResponseItem = object2({
   "recipientName": string5().nullable(),
   "subject": string5(),
   "body": string5(),
-  "status": _enum3(["pending", "sending", "sent", "failed", "dead_letter"]),
+  "status": _enum3(["pending", "sending", "sent", "logged", "failed", "dead_letter"]),
   "attempts": number5(),
   "maxAttempts": number5(),
   "lastError": string5().nullable(),
@@ -86236,7 +86240,7 @@ var RetryNotificationResponse = object2({
   "recipientName": string5().nullable(),
   "subject": string5(),
   "body": string5(),
-  "status": _enum3(["pending", "sending", "sent", "failed", "dead_letter"]),
+  "status": _enum3(["pending", "sending", "sent", "logged", "failed", "dead_letter"]),
   "attempts": number5(),
   "maxAttempts": number5(),
   "lastError": string5().nullable(),
@@ -87293,7 +87297,11 @@ var import_express7 = __toESM(require_express2(), 1);
 
 // src/lib/requireAuth.ts
 var requireAuth = (req, res, next) => {
-  if (process.env.NODE_ENV !== "production" || !process.env.CLERK_SECRET_KEY) {
+  if (process.env.NODE_ENV === "production" && !process.env.CLERK_SECRET_KEY) {
+    res.status(500).json({ error: "Authentication is not configured" });
+    return;
+  }
+  if (process.env.NODE_ENV !== "production") {
     req.userId = "local-user";
     next();
     return;

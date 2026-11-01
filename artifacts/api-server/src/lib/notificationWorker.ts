@@ -1,6 +1,7 @@
 import { and, eq, lte, sql } from "drizzle-orm";
 import { db, notificationsTable } from "@workspace/db";
 import { logger } from "./logger";
+import { isEmailDeliveryConfigured } from "./email";
 import { getFromAddress, getTransport, getEmailMode } from "./email";
 
 const POLL_INTERVAL_MS = Number(process.env.NOTIFICATION_POLL_MS ?? "5000");
@@ -69,13 +70,16 @@ async function processOne(row: typeof notificationsTable.$inferSelect) {
       },
       "Notification email sent",
     );
+    // Honest status: without real SMTP the message is only logged locally,
+    // so never report it as "sent".
+    const delivered = isEmailDeliveryConfigured();
     await db
       .update(notificationsTable)
       .set({
-        status: "sent",
+        status: delivered ? "sent" : "logged",
         attempts,
-        sentAt: new Date(),
-        lastError: null,
+        sentAt: delivered ? new Date() : null,
+        lastError: delivered ? null : "SMTP not configured — message logged, not delivered",
       })
       .where(eq(notificationsTable.id, row.id));
   } catch (err) {

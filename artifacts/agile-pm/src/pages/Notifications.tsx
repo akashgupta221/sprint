@@ -46,14 +46,16 @@ export function Notifications() {
   const stats = notifications?.reduce((acc, n) => {
     acc.total++;
     if (n.status === 'sent') acc.sent++;
+    if (n.status === 'logged') acc.logged++;
     if (n.status === 'pending' || n.status === 'sending') acc.pending++;
     if (n.status === 'failed') acc.failed++;
     if (n.status === 'dead_letter') acc.deadLetter++;
     return acc;
-  }, { total: 0, sent: 0, pending: 0, failed: 0, deadLetter: 0 }) || { total: 0, sent: 0, pending: 0, failed: 0, deadLetter: 0 };
+  }, { total: 0, sent: 0, logged: 0, pending: 0, failed: 0, deadLetter: 0 }) || { total: 0, sent: 0, logged: 0, pending: 0, failed: 0, deadLetter: 0 };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'logged': return <Badge variant="secondary" className="bg-slate-100 text-slate-600">Logged (no SMTP)</Badge>
       case 'pending': return <Badge variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-100 border-transparent dark:bg-blue-900/50 dark:text-blue-300">Pending</Badge>;
       case 'sending': return <Badge variant="secondary" className="bg-indigo-100 text-indigo-800 hover:bg-indigo-100 border-transparent dark:bg-indigo-900/50 dark:text-indigo-300">Sending</Badge>;
       case 'sent': return <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100 border-transparent dark:bg-green-900/50 dark:text-green-300">Sent</Badge>;

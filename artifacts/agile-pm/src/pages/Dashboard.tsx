@@ -4,18 +4,33 @@ import {
   useGetRecentActivity,
   useListProjects
 } from "@workspace/api-client-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FolderKanban, Users, LayoutList, CheckSquare, Activity, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 export function Dashboard() {
-  const { data: summary, isLoading: isSummaryLoading } = useGetDashboardSummary();
-  const { data: activity, isLoading: isActivityLoading } = useGetRecentActivity();
-  const { data: projects, isLoading: isProjectsLoading } = useListProjects();
+  const { data: summary, isLoading, isError: isSummaryError } = useGetDashboardSummary();
+  const { data: activity, isLoading: isActivityLoading, isError: isActivityError } = useGetRecentActivity();
+  const { data: projects, isLoading: isProjectsLoading, isError: isProjectsError } = useListProjects();
 
-  if (isSummaryLoading || isActivityLoading || isProjectsLoading) {
+  if (isLoading || isActivityLoading || isProjectsLoading) {
     return <div className="flex items-center justify-center h-64 text-muted-foreground">Loading dashboard...</div>;
+  }
+
+  // Fail loudly instead of spinning forever when the API is unreachable.
+  if (isSummaryError || isActivityError || isProjectsError) {
+    return (
+      <div className="p-8 max-w-xl">
+        <h1 className="text-2xl font-bold text-red-600">Couldn't load your workspace</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          The server didn't respond properly. This can happen right after the API
+          wakes up from idle — try again.
+        </p>
+        <Button className="mt-4" onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
   }
 
   if (!summary) return null;

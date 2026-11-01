@@ -197,9 +197,9 @@ function HomeRedirect() {
 function Protected({ children }: { children: React.ReactNode }) {
   const auth = useAppAuth();
   if (!auth.isSignedIn) {
-    // Deep-link support: remember where the visitor was headed.
-    sessionStorage.setItem("sprint:redirect", window.location.pathname + window.location.search);
-    return <Redirect to="/sign-in" />;
+    // Deep-link support: Clerk's path-based sign-in honors ?redirect_url=.
+    const target = window.location.pathname + window.location.search;
+    return <Redirect to={`/sign-in?redirect_url=${encodeURIComponent(target)}`} />;
   }
   return <Shell>{children}</Shell>;
 }

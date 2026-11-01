@@ -13,6 +13,7 @@ export const NotificationStatus = {
   pending: 'pending',
   sending: 'sending',
   sent: 'sent',
+  logged: 'logged',
   failed: 'failed',
   dead_letter: 'dead_letter',
 } as const;

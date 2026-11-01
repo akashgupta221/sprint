@@ -43,10 +43,12 @@ export function StoryComments({
   const createComment = useCreateStoryComment();
   const deleteComment = useDeleteComment();
 
-  const mentionMatches = members.filter((member) => {
-    if (!body.endsWith("@")) return false;
-    return true;
-  });
+  // Filter members by whatever is typed after the last "@", so the picker
+  // narrows as the user types instead of only appearing on a bare "@".
+  const mentionFragment = (body.match(/@(\w*)$/) ?? [])[1]?.toLowerCase() ?? "";
+  const mentionMatches = members.filter((member) =>
+    member.name.toLowerCase().replace(/\s+/g, "").startsWith(mentionFragment),
+  );
 
   const submit = () => {
     const text = body.trim();
@@ -144,8 +146,9 @@ export function StoryComments({
         <Textarea
           value={body}
           onChange={(event) => {
-            setBody(event.target.value);
-            setMentionOpen(event.target.value.endsWith("@"));
+            const value = event.target.value;
+            setBody(value);
+            setMentionOpen(!!value.match(/@(\w*)$/));
           }}
           placeholder="Leave a comment… use @name to mention someone"
           rows={3}
