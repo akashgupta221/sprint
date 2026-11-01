@@ -1,19 +1,9 @@
 {
-  "functions": {
-    "api/index.mjs": {
-      "maxDuration": 30
-    }
-  },
+  "functions": { "api/index.mjs": { "maxDuration": 30 } },
+  "buildCommand": "echo 'prebuilt locally'",
+  "outputDirectory": ".",
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
-    }
-  ],
-  "buildCommand": "echo 'prebuilt locally \u2014 no build needed'",
-  "outputDirectory": "."
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
 }

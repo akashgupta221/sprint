@@ -76,3 +76,7 @@ Thumbs.db
 # Agent tooling (machine-specific binaries)
 .agents/
 .codex/
+
+# local cloud-deploy artifacts
+deploy/
+artifacts/agile-pm/api/app.mjs

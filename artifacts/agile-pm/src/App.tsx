@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import {
   Switch,
   Route,
@@ -16,15 +16,15 @@ import { shadcn } from "@clerk/themes";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Shell } from "@/components/Shell";
-import { Dashboard } from "@/pages/Dashboard";
-import { Projects } from "@/pages/Projects";
-import { ProjectDetail } from "@/pages/ProjectDetail";
-import { Board } from "@/pages/Board";
-import { Backlog } from "@/pages/Backlog";
-import { StoryDetail } from "@/pages/StoryDetail";
-import { Team } from "@/pages/Team";
-import { Notifications } from "@/pages/Notifications";
-import { Landing } from "@/pages/Landing";
+const Dashboard = lazy(() => import("@/pages/Dashboard").then(mod => ({ default: mod.Dashboard })));
+const Projects = lazy(() => import("@/pages/Projects").then(mod => ({ default: mod.Projects })));
+const ProjectDetail = lazy(() => import("@/pages/ProjectDetail").then(mod => ({ default: mod.ProjectDetail })));
+const Board = lazy(() => import("@/pages/Board").then(mod => ({ default: mod.Board })));
+const Backlog = lazy(() => import("@/pages/Backlog").then(mod => ({ default: mod.Backlog })));
+const StoryDetail = lazy(() => import("@/pages/StoryDetail").then(mod => ({ default: mod.StoryDetail })));
+const Team = lazy(() => import("@/pages/Team").then(mod => ({ default: mod.Team })));
+const Notifications = lazy(() => import("@/pages/Notifications").then(mod => ({ default: mod.Notifications })));
+const Landing = lazy(() => import("@/pages/Landing").then(mod => ({ default: mod.Landing })));
 import { Button } from "@/components/ui/button";
 import { setBaseUrl } from "@workspace/api-client-react";
 import { AppAuthProvider, useAppAuth } from "./lib/auth";
@@ -249,6 +249,7 @@ function AppRoutes() {
       <QueryClientProvider client={queryClient}>
         {hasClerk ? <ClerkQueryClientCacheInvalidator /> : null}
         <TooltipProvider>
+          <Suspense fallback={<div className="min-h-[100dvh] flex items-center justify-center text-slate-400">Loading…</div>}>
           <Switch>
             <Route path="/" component={HomeRedirect} />
             <Route path="/sign-in/*?" component={SignInPage} />
@@ -301,6 +302,7 @@ function AppRoutes() {
               </Protected>
             </Route>
           </Switch>
+          </Suspense>
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>
