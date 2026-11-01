@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import GradientWaves from "@/components/GradientWaves";
 import {
   LayoutDashboard,
   GitBranch,
@@ -16,9 +17,11 @@ export function Landing() {
       <header className="border-b border-[hsl(160_10%_88%)] bg-white/80 backdrop-blur">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-[hsl(220_45%_35%)] rounded-md flex items-center justify-center text-white font-bold">
-              S
-            </div>
+            <img
+              src="/sprint-mark.png"
+              alt="Sprint logo"
+              className="w-9 h-9 rounded-lg object-cover"
+            />
             <span className="font-semibold text-lg tracking-tight">Sprint</span>
           </div>
           <div className="flex items-center gap-2">
@@ -32,7 +35,27 @@ export function Landing() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-20">
+      <div className="relative">
+        {/* Living navy ocean — the landing's dynamic hero */}
+        <div className="absolute inset-0 overflow-hidden rounded-b-[2.5rem]">
+          <GradientWaves
+            horizonColor="#314C81"
+            waveColor="#3E5C99"
+            crestColor="#8FB0E8"
+            speed={0.35}
+            swell={30}
+            turbulence={18}
+            zoom={1.5}
+            amplitude={3.2}
+            brightness={1}
+            fogDepth={6}
+            sheen={0.3}
+            grain={0.05}
+            dpr={1.5}
+            intro={false}
+          />
+        </div>
+        <main className="relative z-10 max-w-6xl mx-auto px-6 py-24">
         <div className="text-center max-w-2xl mx-auto">
           <h1 className="text-5xl font-bold tracking-tight text-[hsl(220_30%_20%)]">
             Plan, ship, repeat.
@@ -104,7 +127,8 @@ export function Landing() {
             </div>
           </div>
         </div>
-      </main>
+        </main>
+      </div>
 
       <footer className="border-t border-[hsl(160_10%_88%)] bg-white">
         <div className="max-w-6xl mx-auto px-6 py-6 text-sm text-[hsl(220_20%_45%)]">
