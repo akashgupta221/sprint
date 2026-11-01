@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Edit, Trash2, Plus, LayoutList, ChevronRight, AlertCircle } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Plus, LayoutList, ChevronRight, AlertCircle, Columns3, ListTree } from "lucide-react";
 
 const storySchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -175,6 +175,12 @@ export function ProjectDetail() {
             </div>
           </div>
           <div className="flex gap-2">
+            <Link href={`/projects/${projectId}/board`}>
+              <Button variant="outline"><Columns3 className="mr-2 h-4 w-4" /> Board</Button>
+            </Link>
+            <Link href={`/projects/${projectId}/backlog`}>
+              <Button variant="outline"><ListTree className="mr-2 h-4 w-4" /> Backlog</Button>
+            </Link>
             <Dialog open={isEditProjectDialogOpen} onOpenChange={setIsEditDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline"><Edit className="mr-2 h-4 w-4" /> Edit</Button>

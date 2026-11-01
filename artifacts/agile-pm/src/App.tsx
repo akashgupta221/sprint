@@ -19,6 +19,8 @@ import { Shell } from "@/components/Shell";
 import { Dashboard } from "@/pages/Dashboard";
 import { Projects } from "@/pages/Projects";
 import { ProjectDetail } from "@/pages/ProjectDetail";
+import { Board } from "@/pages/Board";
+import { Backlog } from "@/pages/Backlog";
 import { StoryDetail } from "@/pages/StoryDetail";
 import { Team } from "@/pages/Team";
 import { Notifications } from "@/pages/Notifications";
@@ -264,6 +266,16 @@ function AppRoutes() {
             <Route path="/projects/:projectId">
               <Protected>
                 <ProjectDetail />
+              </Protected>
+            </Route>
+            <Route path="/projects/:projectId/board">
+              <Protected>
+                <Board />
+              </Protected>
+            </Route>
+            <Route path="/projects/:projectId/backlog">
+              <Protected>
+                <Backlog />
               </Protected>
             </Route>
             <Route path="/stories/:storyId">

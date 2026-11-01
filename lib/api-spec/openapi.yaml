@@ -22,6 +22,12 @@ tags:
     description: Email notifications (async outbox)
   - name: dashboard
     description: Aggregate dashboard views
+  - name: epics
+    description: Epics grouping related stories
+  - name: sprints
+    description: Time-boxed sprints and sprint planning
+  - name: comments
+    description: Issue comments with @mention notifications
 paths:
   /healthz:
     get:
@@ -375,6 +381,356 @@ paths:
               schema:
                 $ref: "#/components/schemas/Notification"
 
+  /projects/{projectId}/epics:
+    get:
+      operationId: listEpics
+      tags: [epics]
+      summary: List epics for a project
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EpicSummary"
+    post:
+      operationId: createEpic
+      tags: [epics]
+      summary: Create an epic under a project
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEpicInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Epic"
+
+  /epics/{epicId}:
+    get:
+      operationId: getEpic
+      tags: [epics]
+      summary: Get an epic with its stories
+      parameters:
+        - $ref: "#/components/parameters/EpicId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EpicSummary"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateEpic
+      tags: [epics]
+      summary: Update an epic
+      parameters:
+        - $ref: "#/components/parameters/EpicId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEpicInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Epic"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteEpic
+      tags: [epics]
+      summary: Delete an epic (stories keep their data, epic reference cleared)
+      parameters:
+        - $ref: "#/components/parameters/EpicId"
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{projectId}/sprints:
+    get:
+      operationId: listSprints
+      tags: [sprints]
+      summary: List sprints for a project
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SprintSummary"
+    post:
+      operationId: createSprint
+      tags: [sprints]
+      summary: Create a planned sprint
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSprintInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sprint"
+
+  /sprints/{sprintId}:
+    get:
+      operationId: getSprint
+      tags: [sprints]
+      summary: Get a sprint with its stories
+      parameters:
+        - $ref: "#/components/parameters/SprintId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SprintSummary"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateSprint
+      tags: [sprints]
+      summary: Update sprint name, goal or dates
+      parameters:
+        - $ref: "#/components/parameters/SprintId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSprintInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sprint"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteSprint
+      tags: [sprints]
+      summary: Delete a sprint (stories return to the backlog)
+      parameters:
+        - $ref: "#/components/parameters/SprintId"
+      responses:
+        "204":
+          description: Deleted
+
+  /sprints/{sprintId}/stories:
+    post:
+      operationId: addStoriesToSprint
+      tags: [sprints]
+      summary: Move stories into a sprint
+      parameters:
+        - $ref: "#/components/parameters/SprintId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddStoriesToSprintInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SprintSummary"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /sprints/{sprintId}/stories/remove:
+    post:
+      operationId: removeStoriesFromSprint
+      tags: [sprints]
+      summary: Move stories back to the backlog
+      parameters:
+        - $ref: "#/components/parameters/SprintId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddStoriesToSprintInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SprintSummary"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /sprints/{sprintId}/start:
+    post:
+      operationId: startSprint
+      tags: [sprints]
+      summary: Start a planned sprint (only one active sprint per project)
+      parameters:
+        - $ref: "#/components/parameters/SprintId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sprint"
+        "409":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /sprints/{sprintId}/complete:
+    post:
+      operationId: completeSprint
+      tags: [sprints]
+      summary: Complete the active sprint (unfinished stories return to the backlog)
+      parameters:
+        - $ref: "#/components/parameters/SprintId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sprint"
+        "409":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /sprints/{sprintId}/burndown:
+    get:
+      operationId: getSprintBurndown
+      tags: [sprints]
+      summary: Remaining story points per day for a sprint
+      parameters:
+        - $ref: "#/components/parameters/SprintId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BurndownReport"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /stories/{storyId}/comments:
+    get:
+      operationId: listStoryComments
+      tags: [comments]
+      summary: List comments on a story
+      parameters:
+        - $ref: "#/components/parameters/StoryId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+    post:
+      operationId: createStoryComment
+      tags: [comments]
+      summary: Comment on a story (@memberName mentions notify members)
+      parameters:
+        - $ref: "#/components/parameters/StoryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+
+  /tasks/{taskId}/comments:
+    get:
+      operationId: listTaskComments
+      tags: [comments]
+      summary: List comments on a task
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+    post:
+      operationId: createTaskComment
+      tags: [comments]
+      summary: Comment on a task (@memberName mentions notify members)
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+
+  /comments/{commentId}:
+    delete:
+      operationId: deleteComment
+      tags: [comments]
+      summary: Delete a comment
+      parameters:
+        - $ref: "#/components/parameters/CommentId"
+      responses:
+        "204":
+          description: Deleted
+
 components:
   parameters:
     ProjectId:
@@ -391,6 +747,24 @@ components:
         type: integer
     TaskId:
       name: taskId
+      in: path
+      required: true
+      schema:
+        type: integer
+    EpicId:
+      name: epicId
+      in: path
+      required: true
+      schema:
+        type: integer
+    SprintId:
+      name: sprintId
+      in: path
+      required: true
+      schema:
+        type: integer
+    CommentId:
+      name: commentId
       in: path
       required: true
       schema:
@@ -556,6 +930,9 @@ components:
           type: ["string", "null"]
         acceptanceCriteria:
           type: ["string", "null"]
+        type:
+          type: string
+          enum: [story, bug, spike]
         status:
           type: string
           enum: [backlog, ready, in_progress, review, done]
@@ -564,13 +941,29 @@ components:
           enum: [low, medium, high, urgent]
         storyPoints:
           type: ["integer", "null"]
+        epicId:
+          type: ["integer", "null"]
+        sprintId:
+          type: ["integer", "null"]
+        assigneeId:
+          type: ["integer", "null"]
+        assignee:
+          oneOf:
+            - $ref: "#/components/schemas/Member"
+            - type: "null"
+        labels:
+          type: array
+          items:
+            type: string
+        rank:
+          type: integer
         createdAt:
           type: string
           format: date-time
         updatedAt:
           type: string
           format: date-time
-      required: [id, projectId, title, description, acceptanceCriteria, status, priority, storyPoints, createdAt, updatedAt]
+      required: [id, projectId, title, description, acceptanceCriteria, type, status, priority, storyPoints, epicId, sprintId, assigneeId, assignee, labels, rank, createdAt, updatedAt]
 
     StorySummary:
       allOf:
@@ -604,12 +997,26 @@ components:
           type: ["string", "null"]
         acceptanceCriteria:
           type: ["string", "null"]
+        type:
+          type: string
+          enum: [story, bug, spike]
+          default: story
         priority:
           type: string
           enum: [low, medium, high, urgent]
           default: medium
         storyPoints:
           type: ["integer", "null"]
+        epicId:
+          type: ["integer", "null"]
+        sprintId:
+          type: ["integer", "null"]
+        assigneeId:
+          type: ["integer", "null"]
+        labels:
+          type: array
+          items:
+            type: string
       required: [title]
 
     UpdateStoryInput:
@@ -621,6 +1028,9 @@ components:
           type: ["string", "null"]
         acceptanceCriteria:
           type: ["string", "null"]
+        type:
+          type: string
+          enum: [story, bug, spike]
         status:
           type: string
           enum: [backlog, ready, in_progress, review, done]
@@ -629,6 +1039,18 @@ components:
           enum: [low, medium, high, urgent]
         storyPoints:
           type: ["integer", "null"]
+        epicId:
+          type: ["integer", "null"]
+        sprintId:
+          type: ["integer", "null"]
+        assigneeId:
+          type: ["integer", "null"]
+        labels:
+          type: array
+          items:
+            type: string
+        rank:
+          type: integer
 
     Task:
       type: object
@@ -808,3 +1230,219 @@ components:
           type: string
           format: date-time
       required: [id, kind, recipientEmail, recipientName, subject, body, status, attempts, maxAttempts, lastError, nextAttemptAt, sentAt, relatedTaskId, createdAt, updatedAt]
+
+    Epic:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        title:
+          type: string
+        summary:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [planned, in_progress, done]
+        color:
+          type: string
+          enum: [navy, blue, green, amber, red, violet]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, projectId, title, summary, status, color, createdAt, updatedAt]
+
+    EpicSummary:
+      allOf:
+        - $ref: "#/components/schemas/Epic"
+        - type: object
+          properties:
+            storyCount:
+              type: integer
+            storyPoints:
+              type: integer
+            storiesDone:
+              type: integer
+          required: [storyCount, storyPoints, storiesDone]
+
+    CreateEpicInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        summary:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [planned, in_progress, done]
+          default: planned
+        color:
+          type: string
+          enum: [navy, blue, green, amber, red, violet]
+          default: navy
+      required: [title]
+
+    UpdateEpicInput:
+      type: object
+      properties:
+        title:
+          type: string
+        summary:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [planned, in_progress, done]
+        color:
+          type: string
+          enum: [navy, blue, green, amber, red, violet]
+
+    Sprint:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        name:
+          type: string
+        goal:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [planned, active, completed]
+        startDate:
+          type: ["string", "null"]
+          format: date-time
+        endDate:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, projectId, name, goal, status, startDate, endDate, createdAt, updatedAt]
+
+    SprintSummary:
+      allOf:
+        - $ref: "#/components/schemas/Sprint"
+        - type: object
+          properties:
+            storyCount:
+              type: integer
+            totalPoints:
+              type: integer
+            donePoints:
+              type: integer
+            stories:
+              type: array
+              items:
+                $ref: "#/components/schemas/StorySummary"
+          required: [storyCount, totalPoints, donePoints, stories]
+
+    CreateSprintInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        goal:
+          type: ["string", "null"]
+        startDate:
+          type: ["string", "null"]
+          format: date-time
+        endDate:
+          type: ["string", "null"]
+          format: date-time
+      required: [name]
+
+    UpdateSprintInput:
+      type: object
+      properties:
+        name:
+          type: string
+        goal:
+          type: ["string", "null"]
+        startDate:
+          type: ["string", "null"]
+          format: date-time
+        endDate:
+          type: ["string", "null"]
+          format: date-time
+
+    AddStoriesToSprintInput:
+      type: object
+      properties:
+        storyIds:
+          type: array
+          items:
+            type: integer
+      required: [storyIds]
+
+    BurndownPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        remainingPoints:
+          type: number
+        idealPoints:
+          type: number
+      required: [date, remainingPoints, idealPoints]
+
+    BurndownReport:
+      type: object
+      properties:
+        sprint:
+          $ref: "#/components/schemas/Sprint"
+        totalPoints:
+          type: integer
+        points:
+          type: array
+          items:
+            $ref: "#/components/schemas/BurndownPoint"
+      required: [sprint, totalPoints, points]
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        storyId:
+          type: ["integer", "null"]
+        taskId:
+          type: ["integer", "null"]
+        authorId:
+          type: ["integer", "null"]
+        authorName:
+          type: string
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, projectId, storyId, taskId, authorId, authorName, body, createdAt, updatedAt]
+
+    CreateCommentInput:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        authorName:
+          type: string
+          default: Someone
+      required: [body]

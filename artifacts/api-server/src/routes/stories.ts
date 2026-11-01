@@ -30,6 +30,7 @@ router.get(
     const rows = await db
       .select({
         story: storiesTable,
+        assignee: membersTable,
         taskCount: sql<number>`COALESCE(COUNT(${tasksTable.id}), 0)`.as(
           "task_count",
         ),
@@ -39,13 +40,15 @@ router.get(
       })
       .from(storiesTable)
       .leftJoin(tasksTable, eq(tasksTable.storyId, storiesTable.id))
+      .leftJoin(membersTable, eq(storiesTable.assigneeId, membersTable.id))
       .where(eq(storiesTable.projectId, params.data.projectId))
-      .groupBy(storiesTable.id)
-      .orderBy(storiesTable.createdAt);
+      .groupBy(storiesTable.id, membersTable.id)
+      .orderBy(storiesTable.rank, storiesTable.createdAt);
 
     res.json(
       rows.map((r: any) => ({
         ...r.story,
+        assignee: r.assignee,
         taskCount: Number(r.taskCount),
         tasksDone: Number(r.tasksDone),
       })),
@@ -75,6 +78,11 @@ router.post(
         acceptanceCriteria: parsed.data.acceptanceCriteria ?? null,
         priority: parsed.data.priority ?? "medium",
         storyPoints: parsed.data.storyPoints ?? null,
+        type: parsed.data.type ?? "story",
+        epicId: parsed.data.epicId ?? null,
+        sprintId: parsed.data.sprintId ?? null,
+        assigneeId: parsed.data.assigneeId ?? null,
+        labels: parsed.data.labels ?? [],
       })
       .returning();
     await recordActivity({
@@ -101,6 +109,12 @@ router.get("/stories/:storyId", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Story not found" });
     return;
   }
+  const [assigneeRow] = story.assigneeId
+    ? await db
+        .select()
+        .from(membersTable)
+        .where(eq(membersTable.id, story.assigneeId))
+    : [];
   const tasks = await db
     .select({ task: tasksTable, assignee: membersTable })
     .from(tasksTable)
@@ -109,6 +123,7 @@ router.get("/stories/:storyId", async (req, res): Promise<void> => {
     .orderBy(tasksTable.createdAt);
   res.json({
     ...story,
+    assignee: assigneeRow ?? null,
     tasks: tasks.map((t: any) => ({ ...(t as any).task, assignee: (t as any).assignee })),
   });
 });
@@ -149,6 +164,14 @@ router.patch("/stories/:storyId", async (req, res): Promise<void> => {
       ...(parsed.data.storyPoints !== undefined && {
         storyPoints: parsed.data.storyPoints,
       }),
+      ...(parsed.data.type !== undefined && { type: parsed.data.type }),
+      ...(parsed.data.epicId !== undefined && { epicId: parsed.data.epicId }),
+      ...(parsed.data.sprintId !== undefined && { sprintId: parsed.data.sprintId }),
+      ...(parsed.data.assigneeId !== undefined && {
+        assigneeId: parsed.data.assigneeId,
+      }),
+      ...(parsed.data.labels !== undefined && { labels: parsed.data.labels }),
+      ...(parsed.data.rank !== undefined && { rank: parsed.data.rank }),
     })
     .where(eq(storiesTable.id, params.data.storyId))
     .returning();

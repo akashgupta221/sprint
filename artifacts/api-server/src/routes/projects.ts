@@ -89,10 +89,10 @@ router.post("/projects", async (req, res): Promise<void> => {
   const normalizedBody = await normalizeCreateProjectBody(req.body);
   const parsed = CreateProjectBody.safeParse(normalizedBody);
     if (!parsed.success) {
-    req.log.warn({ errors: parsed.error.errors, body: normalizedBody }, "Project validation failed");
+    req.log.warn({ errors: parsed.error.issues, body: normalizedBody }, "Project validation failed");
     res.status(400).json({ 
       error: "Validation failed",
-      details: parsed.error.errors.map((e: any) => `${(e as any).path.join('.')}: ${(e as any).message}`)
+      details: parsed.error.issues.map((e: any) => `${(e as any).path.join('.')}: ${(e as any).message}`)
     });
     return;
   }

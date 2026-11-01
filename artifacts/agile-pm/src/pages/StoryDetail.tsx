@@ -24,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { StoryComments } from "@/components/StoryComments";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -546,7 +547,11 @@ export function StoryDetail() {
           ))}
         </div>
       </div>
+
+      <StoryComments
+        storyId={storyId}
+        members={members.map((m: any) => ({ id: m.id, name: m.name }))}
+      />
     </div>
   );
 }
-

@@ -4,3 +4,6 @@ export * from "./stories";
 export * from "./tasks";
 export * from "./notifications";
 export * from "./activity";
+export * from "./epics";
+export * from "./sprints";
+export * from "./comments";

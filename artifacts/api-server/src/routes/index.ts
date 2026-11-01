@@ -6,6 +6,9 @@ import storiesRouter from "./stories";
 import tasksRouter from "./tasks";
 import dashboardRouter from "./dashboard";
 import notificationsRouter from "./notifications";
+import epicsRouter from "./epics";
+import sprintsRouter from "./sprints";
+import commentsRouter from "./comments";
 import docsRouter from "./docs";
 import { requireAuth } from "../lib/requireAuth";
 
@@ -23,5 +26,8 @@ router.use(storiesRouter);
 router.use(tasksRouter);
 router.use(dashboardRouter);
 router.use(notificationsRouter);
+router.use(epicsRouter);
+router.use(sprintsRouter);
+router.use(commentsRouter);
 
 export default router;
