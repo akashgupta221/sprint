@@ -48,7 +48,26 @@ export default function RootLayout({
     >
       <body className="antialiased">
         <script dangerouslySetInnerHTML={{ __html: jsClassScript }} />
-        <ClerkProvider>{children}</ClerkProvider>
+        <ClerkProvider
+          localization={
+            {
+              signIn: {
+                start: {
+                  title: 'Sign in to Sprint',
+                  subtitle: 'Welcome back! Please sign in to continue',
+                },
+              },
+              signUp: {
+                start: {
+                  title: 'Create your Sprint account',
+                  subtitle: 'Plan, ship, repeat — together.',
+                },
+              },
+            } as any
+          }
+        >
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   )

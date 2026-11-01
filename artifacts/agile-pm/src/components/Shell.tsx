@@ -34,9 +34,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden bg-background">
       <aside className="w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground flex-col hidden md:flex">
         <div className="p-4 border-b border-sidebar-border flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-primary-foreground font-bold">
-            S
-          </div>
+          <img
+            src="/sprint-mark.png"
+            alt="Sprint logo"
+            className="w-8 h-8 rounded-md object-cover"
+          />
           <span className="font-semibold text-lg tracking-tight">Sprint</span>
         </div>
         <nav className="flex-1 p-4 flex flex-col gap-1 overflow-y-auto">
