@@ -50,16 +50,19 @@ export function Hero() {
       <div className="absolute inset-0">
         <GradientWaves
           className="!h-full"
-          horizonColor="#22380F"
-          waveColor="#4D7C0F"
-          crestColor="#D9F99D"
+          lightMode
+          horizonColor="#314C81"
+          waveColor="#3E5C99"
+          crestColor="#7FA3E0"
           speed={0.35}
           swell={30}
           turbulence={18}
-          zoom={1.05}
-          brightness={1.05}
-          sheen={0.5}
-          grain={0.12}
+          zoom={1.1}
+          amplitude={3}
+          brightness={1.15}
+          fogDepth={9}
+          sheen={0.4}
+          grain={0.06}
           dpr={1.5}
         />
       </div>
@@ -90,7 +93,7 @@ export function Hero() {
           <div className="mt-10 flex flex-wrap items-center gap-4 animate-[hero-rise_0.8s_cubic-bezier(0.22,1,0.36,1)_0.75s_both]">
             <Show when="signed-out">
               <SignUpButton mode="modal">
-                <button className="inline-flex h-12 cursor-pointer items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_6px_24px_oklch(0.9_0.2_127/0.3)] transition-transform hover:-translate-y-0.5">
+                <button className="inline-flex h-12 cursor-pointer items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_4px_14px_rgba(49,76,129,0.28)] transition-transform hover:-translate-y-0.5">
                   Start free
                   <ArrowRight className="h-4 w-4" />
                 </button>
@@ -99,7 +102,7 @@ export function Hero() {
             <Show when="signed-in">
               <Link
                 href="/dashboard"
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_6px_24px_oklch(0.9_0.2_127/0.3)] transition-transform hover:-translate-y-0.5"
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_4px_14px_rgba(49,76,129,0.28)] transition-transform hover:-translate-y-0.5"
               >
                 Open your dashboard
                 <ArrowRight className="h-4 w-4" />

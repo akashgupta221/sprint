@@ -37,7 +37,7 @@ function VideoFacade({ id, title, tag }: { id: string; title: string; tag: strin
 
   return (
     <button
-      className="group relative aspect-video w-full cursor-pointer overflow-hidden rounded-2xl border border-border bg-card text-left shadow-[0_8px_32px_oklch(0.05_0.01_160/0.5)] transition-transform hover:-translate-y-1"
+      className="group relative aspect-video w-full cursor-pointer overflow-hidden rounded-2xl border border-border bg-card text-left shadow-[0_8px_24px_rgba(36,46,66,0.08)] transition-transform hover:-translate-y-1"
       onClick={() => setPlaying(true)}
       aria-label={`Play video: ${title}`}
     >
@@ -50,7 +50,7 @@ function VideoFacade({ id, title, tag }: { id: string; title: string; tag: strin
         unoptimized
       />
       <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-background/20 to-transparent" />
-      <span className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_6px_24px_oklch(0.9_0.2_127/0.4)] transition-transform group-hover:scale-110">
+      <span className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_6px_18px_rgba(49,76,129,0.35)] transition-transform group-hover:scale-110">
         <Play className="ml-0.5 h-5 w-5" fill="currentColor" />
       </span>
       <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">

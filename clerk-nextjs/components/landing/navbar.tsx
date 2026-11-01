@@ -62,7 +62,7 @@ export function Navbar() {
               </button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="cursor-pointer rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_2px_12px_oklch(0.9_0.2_127/0.25)] transition-transform hover:-translate-y-0.5">
+              <button className="cursor-pointer rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_2px_10px_rgba(49,76,129,0.3)] transition-transform hover:-translate-y-0.5">
                 Start free
               </button>
             </SignUpButton>
@@ -70,7 +70,7 @@ export function Navbar() {
           <Show when="signed-in">
             <Link
               href="/dashboard"
-              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_2px_12px_oklch(0.9_0.2_127/0.25)] transition-transform hover:-translate-y-0.5"
+              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_2px_10px_rgba(49,76,129,0.3)] transition-transform hover:-translate-y-0.5"
             >
               Open app
             </Link>

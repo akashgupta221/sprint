@@ -102,7 +102,7 @@ function BoardMock() {
   }, [])
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-[0_8px_32px_oklch(0.05_0.01_160/0.5)] sm:p-6">
+    <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-[0_8px_24px_rgba(36,46,66,0.08)] sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <h3 className="font-heading text-xl font-bold tracking-tight">
           A board that keeps tempo
@@ -136,7 +136,7 @@ function BoardMock() {
                   key={card.id}
                   className={`rounded-lg border border-border bg-card p-2.5 transition-all duration-500 ${
                     moving === card.id
-                      ? 'scale-[1.03] border-volt/60 shadow-[0_4px_16px_oklch(0.9_0.2_127/0.15)]'
+                      ? 'scale-[1.03] border-volt/60 shadow-[0_4px_16px_rgba(47,95,224,0.2)]'
                       : ''
                   }`}
                 >
@@ -197,7 +197,7 @@ function PipelineMock() {
   }, [])
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-[0_8px_32px_oklch(0.05_0.01_160/0.5)] sm:p-6">
+    <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-[0_8px_24px_rgba(36,46,66,0.08)] sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <h3 className="font-heading text-xl font-bold tracking-tight">
           Notifications that refuse to die

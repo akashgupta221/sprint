@@ -44,7 +44,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${geistSans.variable} ${geistMono.variable} ${archivo.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${archivo.variable}`}
     >
       <body className="antialiased">
         <script dangerouslySetInnerHTML={{ __html: jsClassScript }} />

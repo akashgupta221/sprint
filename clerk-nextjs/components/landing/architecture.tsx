@@ -62,7 +62,7 @@ export function Architecture() {
         </Reveal>
 
         <Reveal variant="clip" delay={150}>
-          <div className="rounded-2xl border border-border bg-background/70 p-6 shadow-[0_8px_32px_oklch(0.05_0.01_160/0.5)] sm:p-8">
+          <div className="rounded-2xl border border-border bg-background/70 p-6 shadow-[0_8px_24px_rgba(36,46,66,0.08)] sm:p-8">
             <div className="flex items-center justify-between border-b border-border/70 pb-4">
               <span className="font-mono text-[11px] tracking-wider text-muted-foreground">
                 lib/api-spec/openapi.yaml
@@ -122,7 +122,7 @@ export function Architecture() {
               </text>
               <rect x="36" y="148" width="148" height="26" rx="7" fill="var(--background)" stroke="var(--border)" />
               <text x="110" y="165" textAnchor="middle" fill="var(--muted-foreground)" fontSize="10" fontFamily="var(--font-geist-mono)">
-                api-zod/ · generated
+                api-zod/ (generated)
               </text>
               <text x="110" y="200" textAnchor="middle" fill="var(--muted-foreground)" fontSize="10" fontFamily="var(--font-geist-mono)">
                 Zod validates every request
@@ -134,8 +134,8 @@ export function Architecture() {
                 React 19 frontend
               </text>
               <rect x="276" y="148" width="148" height="26" rx="7" fill="var(--background)" stroke="var(--border)" />
-              <text x="350" y="165" textAnchor="middle" fill="var(--muted-foreground)" fontSize="10" fontFamily="var(--font-geist-mono)">
-                api-client-react/ · generated
+              <text x="350" y="165" textAnchor="middle" fill="var(--muted-foreground)" fontSize="9.5" fontFamily="var(--font-geist-mono)">
+                api-client-react/ (gen)
               </text>
               <text x="350" y="200" textAnchor="middle" fill="var(--muted-foreground)" fontSize="10" fontFamily="var(--font-geist-mono)">
                 typed TanStack Query hooks

@@ -1,65 +1,66 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-11-01T00:00:00Z",
-  "title": "Design System: Sprint — The Floodlit Night Track",
+  "title": "Design System: Sprint — Crisp Navy Playbook",
   "extensions": {
     "colorMeta": {
-      "volt": {
+      "navy": {
         "role": "primary",
-        "displayName": "Volt Lime",
-        "canonical": "oklch(0.9 0.2 127)",
+        "displayName": "Playbook Navy",
+        "canonical": "#314c81",
         "tonalRamp": [
-          "oklch(0.15 0.03 127)",
-          "oklch(0.25 0.06 127)",
-          "oklch(0.37 0.09 127)",
-          "oklch(0.5 0.13 127)",
-          "oklch(0.62 0.16 127)",
-          "oklch(0.74 0.18 127)",
-          "oklch(0.9 0.2 127)",
-          "oklch(0.96 0.1 127)"
+          "#0f1b33",
+          "#16264a",
+          "#1d3160",
+          "#243c76",
+          "#314c81",
+          "#5c6b8a",
+          "#8da3c8",
+          "#dce6f5"
         ]
       },
       "ground": {
         "role": "neutral",
-        "displayName": "Night Ground",
-        "canonical": "oklch(0.155 0.006 160)",
-        "tonalRamp": [
-          "oklch(0.15 0.006 160)",
-          "oklch(0.19 0.008 160)",
-          "oklch(0.23 0.008 160)",
-          "oklch(0.3 0.01 160)",
-          "oklch(0.42 0.012 160)",
-          "oklch(0.55 0.014 160)",
-          "oklch(0.72 0.02 150)",
-          "oklch(0.96 0.006 120)"
-        ]
+        "displayName": "Cool Paper",
+        "canonical": "#f9fbfa"
       },
       "surface": {
         "role": "neutral",
-        "displayName": "Track Surface",
-        "canonical": "oklch(0.19 0.008 160)"
+        "displayName": "Card White",
+        "canonical": "#ffffff"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Slate Ink",
+        "canonical": "#242e42"
       },
       "ink-secondary": {
         "role": "neutral",
-        "displayName": "Fog Ink",
-        "canonical": "oklch(0.72 0.02 150)"
+        "displayName": "Slate Fog",
+        "canonical": "#5c6b8a"
+      },
+      "accent": {
+        "role": "accent",
+        "displayName": "Royal Highlight",
+        "canonical": "#3b82f6",
+        "purpose": "Brightest element on the page: headline highlights, links, diagram nodes, focus."
       },
       "wave-body": {
         "role": "accent",
-        "displayName": "Wave Lime-700",
-        "canonical": "#4D7C0F",
-        "purpose": "GradientWaves hero ocean body."
+        "displayName": "Wave Steel Navy",
+        "canonical": "#3E5C99",
+        "purpose": "GradientWaves light-mode ocean body."
       },
       "wave-crest": {
         "role": "accent",
-        "displayName": "Wave Lime-100",
-        "canonical": "#D9F99D",
-        "purpose": "GradientWaves hero crest highlights."
+        "displayName": "Wave Periwinkle",
+        "canonical": "#7FA3E0",
+        "purpose": "GradientWaves light-mode crest highlights."
       },
       "wave-horizon": {
         "role": "accent",
-        "displayName": "Deep Moss Fog",
-        "canonical": "#22380F",
+        "displayName": "Wave Navy Fog",
+        "canonical": "#314C81",
         "purpose": "GradientWaves horizon haze."
       },
       "display": {
@@ -73,19 +74,19 @@
     },
     "shadows": [
       {
-        "name": "volt-halo-sm",
-        "value": "0 2px 12px oklch(0.9 0.2 127 / 25%)",
+        "name": "navy-halo-sm",
+        "value": "0 2px 10px rgba(49, 76, 129, 0.3)",
         "purpose": "Navbar-scale primary buttons."
       },
       {
-        "name": "volt-halo-lg",
-        "value": "0 6px 24px oklch(0.9 0.2 127 / 30%)",
+        "name": "navy-halo-lg",
+        "value": "0 4px 14px rgba(49, 76, 129, 0.28)",
         "purpose": "Hero and CTA primary buttons; pairs with -2px hover lift."
       },
       {
         "name": "panel-lift",
-        "value": "0 8px 32px oklch(0.05 0.01 160 / 50%)",
-        "purpose": "Lifting panels off the night ground."
+        "value": "0 8px 24px rgba(36, 46, 66, 0.08)",
+        "purpose": "Lifting white panels off the cool-paper ground."
       }
     ],
     "motion": [
@@ -136,35 +137,36 @@
       "lg": "1024px"
     },
     "components": {
-      "button-primary": "<button class=\"inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_6px_24px_oklch(0.9_0.2_127/0.3)] transition-transform hover:-translate-y-0.5\">Start free</button>",
+      "button-primary": "<button class=\"inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_4px_14px_rgba(49,76,129,0.28)] transition-transform hover:-translate-y-0.5\">Start free</button>",
       "button-ghost": "<a class=\"inline-flex h-12 items-center gap-2 rounded-full border border-border px-6 text-base font-medium text-foreground transition-colors hover:bg-accent\">See the machinery</a>",
-      "panel": "<div class=\"rounded-2xl border border-border bg-card p-6 shadow-[0_8px_32px_oklch(0.05_0.01_160/0.5)]\">…</div>",
+      "panel": "<div class=\"rounded-2xl border border-border bg-card p-6 shadow-[0_8px_24px_rgba(36,46,66,0.08)]\">…</div>",
       "nav": "<header class=\"fixed inset-x-0 top-0 z-50 border-b border-transparent backdrop-blur-md is-scrolled:border-border is-scrolled:bg-background/80\">…</header>"
     },
     "narrative": {
-      "northStar": "The Floodlit Night Track",
-      "overview": "Sprint's interface is a stadium after dark: a near-black green-tinted ground, one volt-lime light carrying the page, and lane-line hairlines marking structure. The design shows machinery rather than decorating around it — boards move, queues retry, connectors draw.",
+      "northStar": "Crisp Navy Playbook",
+      "overview": "Sprint's interface is a clean, light workspace — the same shade family as the product's reference app: light cool-gray ground, white cards, slate-navy ink, navy primary actions, and one brighter royal-blue accent carrying highlights. Machinery is shown, not decorated around: boards move, queues retry, connectors draw.",
       "keyCharacteristics": [
-        "One saturated accent (volt) is allowed to carry whole regions; everything else stays quiet and dark.",
+        "Light theme only. Depth comes from hairline borders and soft navy-tinted shadows, never dark surfaces.",
+        "The accent (#3B82F6) is the brightest thing on the page and stays in the navy shade family.",
         "Monospace is reserved for measurements, file names, and spec names — never as a \"technical\" costume.",
-        "Motion is calm but alive: the hero's WebGL ocean is the single authored moment; everything else reveals once and settles.",
+        "Motion is calm but alive: the hero's light-mode WebGL ocean is the single authored moment; everything else reveals once and settles.",
         "Honesty is visual too: sample data is labeled, claims are real, no invented proof."
       ],
       "rules": [
         {
           "section": "Colors",
-          "rule": "The One-Light Rule. Volt is the only saturated color on the page. If a second hue must appear (amber retry states in illustrative data), it is semantic and temporary, never decorative."
+          "rule": "The Same-Shade Rule. Every color on the page belongs to the reference app's navy/slate family. New colors must be siblings of navy #314C81 or slate #242E42 — never foreign hues. Semantic amber (retry states in illustrative data) is the sole exception."
         }
       ],
       "dos": [
-        "Keep secondary text tinted from the green hue (ink-secondary)",
+        "Keep every color inside the navy/slate family",
         "Use mono for measurements and spec names",
         "Label sample/illustrative data"
       ],
       "donts": [
         "Add eyebrows/kickers above headings",
         "Scatter identical entrance animations",
-        "Introduce a second saturated accent"
+        "Introduce foreign hues or revert to dark surfaces"
       ]
     }
   }

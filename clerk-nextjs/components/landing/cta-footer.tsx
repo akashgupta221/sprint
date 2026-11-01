@@ -43,7 +43,7 @@ export function FinalCta() {
             <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
               <Show when="signed-out">
                 <SignUpButton mode="modal">
-                  <button className="inline-flex h-12 cursor-pointer items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_6px_24px_oklch(0.9_0.2_127/0.3)] transition-transform hover:-translate-y-0.5">
+                  <button className="inline-flex h-12 cursor-pointer items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_4px_14px_rgba(49,76,129,0.28)] transition-transform hover:-translate-y-0.5">
                     Start free
                     <ArrowRight className="h-4 w-4" />
                   </button>
@@ -52,7 +52,7 @@ export function FinalCta() {
               <Show when="signed-in">
                 <Link
                   href="/dashboard"
-                  className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_6px_24px_oklch(0.9_0.2_127/0.3)] transition-transform hover:-translate-y-0.5"
+                  className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-[0_4px_14px_rgba(49,76,129,0.28)] transition-transform hover:-translate-y-0.5"
                 >
                   Open your dashboard
                   <ArrowRight className="h-4 w-4" />
