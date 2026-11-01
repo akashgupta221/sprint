@@ -38,7 +38,7 @@ const basePath = rawBasePath.replace(/\/$/, "");
 const hasClerk = Boolean(clerkPubKey);
 
 // Set API base URL
-setBaseUrl("http://localhost:3000");
+setBaseUrl(import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000");
 
 function stripBase(path: string): string {
   return basePath && path.startsWith(basePath)

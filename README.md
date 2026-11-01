@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://sprint-drab.vercel.app">🌐 Live App</a> ·
+  <a href="https://sprint-app-ten.vercel.app">🌐 Live App (full product)</a> ·
   <a href="https://youtu.be/Sumf3ThXkvk">🎥 Overview Video</a> ·
   <a href="https://youtu.be/ZmLD1TLM-WE">🎥 Demo Video</a>
 </p>

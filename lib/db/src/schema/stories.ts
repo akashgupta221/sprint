@@ -5,6 +5,7 @@ import {
   timestamp,
   varchar,
   integer,
+  index,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -13,7 +14,9 @@ import { epicsTable } from "./epics";
 import { sprintsTable } from "./sprints";
 import { membersTable } from "./members";
 
-export const storiesTable = pgTable("stories", {
+export const storiesTable = pgTable(
+  "stories",
+  {
   id: serial("id").primaryKey(),
   projectId: integer("project_id")
     .notNull()
@@ -46,7 +49,13 @@ export const storiesTable = pgTable("stories", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
-});
+},
+  (table) => [
+    index("stories_project_sprint_rank_idx").on(table.projectId, table.sprintId, table.rank),
+    index("stories_epic_idx").on(table.epicId),
+    index("stories_assignee_idx").on(table.assigneeId),
+  ],
+);
 
 export const insertStorySchema = createInsertSchema(storiesTable).omit({
   id: true,

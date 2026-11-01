@@ -4,6 +4,7 @@ import {
   text,
   timestamp,
   integer,
+  index,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -17,7 +18,9 @@ import { membersTable } from "./members";
  * story or task within a project; @mentions inside the body fan out to the
  * durable notification outbox.
  */
-export const commentsTable = pgTable("comments", {
+export const commentsTable = pgTable(
+  "comments",
+  {
   id: serial("id").primaryKey(),
   projectId: integer("project_id")
     .notNull()
@@ -40,7 +43,12 @@ export const commentsTable = pgTable("comments", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
-});
+},
+  (table) => [
+    index("comments_story_idx").on(table.storyId),
+    index("comments_task_idx").on(table.taskId),
+  ],
+);
 
 export const insertCommentSchema = createInsertSchema(commentsTable).omit({
   id: true,

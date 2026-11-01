@@ -6,13 +6,16 @@ import {
   varchar,
   integer,
   doublePrecision,
+  index,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { storiesTable } from "./stories";
 import { membersTable } from "./members";
 
-export const tasksTable = pgTable("tasks", {
+export const tasksTable = pgTable(
+  "tasks",
+  {
   id: serial("id").primaryKey(),
   storyId: integer("story_id")
     .notNull()
@@ -32,7 +35,9 @@ export const tasksTable = pgTable("tasks", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
-});
+},
+  (table) => [index("tasks_story_idx").on(table.storyId), index("tasks_assignee_idx").on(table.assigneeId)],
+);
 
 export const insertTaskSchema = createInsertSchema(tasksTable).omit({
   id: true,

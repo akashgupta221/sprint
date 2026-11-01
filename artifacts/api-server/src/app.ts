@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import cors from "cors";
+import { drainNotificationQueue } from "./lib/notificationWorker";
 import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
 import {
@@ -33,9 +34,29 @@ app.use(
 
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
-app.use(cors({ credentials: true, origin: true }));
+const allowedOrigins = (process.env.CORS_ORIGINS ?? "http://localhost:4173,http://localhost:5173")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+app.use(
+  cors({
+    credentials: true,
+    origin: (origin, cb) => {
+      // Same-origin/serverless calls and curl arrive without an Origin header.
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(null, false);
+    },
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Serverless piggyback: drain pending notification emails after responses.
+app.use((req, res, next) => {
+  res.on("finish", () => {
+    drainNotificationQueue();
+  });
+  next();
+});
 
 if (process.env.NODE_ENV === "production" && process.env.CLERK_SECRET_KEY) {
   app.use(clerkMiddleware());

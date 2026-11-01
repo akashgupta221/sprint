@@ -5,6 +5,7 @@ import {
   timestamp,
   varchar,
   integer,
+  index,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -20,7 +21,9 @@ import { tasksTable } from "./tasks";
  *   failed   -> the last attempt failed; may be retried with exponential backoff
  *   dead_letter -> attempts exhausted; requires manual retry
  */
-export const notificationsTable = pgTable("notifications", {
+export const notificationsTable = pgTable(
+  "notifications",
+  {
   id: serial("id").primaryKey(),
   kind: varchar("kind", { length: 64 }).notNull(),
   recipientEmail: varchar("recipient_email", { length: 320 }).notNull(),
@@ -45,7 +48,9 @@ export const notificationsTable = pgTable("notifications", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
-});
+}, (table) => [
+  index("notifications_status_next_attempt_idx").on(table.status, table.nextAttemptAt),
+]);
 
 export const insertNotificationSchema = createInsertSchema(
   notificationsTable,

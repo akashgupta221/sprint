@@ -1,1 +1,8 @@
-{"rewrites": [{"source": "/(.*)", "destination": "/index.html"}]}
+{
+  "installCommand": "cd ../.. && pnpm install",
+  "buildCommand": "pnpm --filter @workspace/api-server exec esbuild src/app.ts --bundle --platform=node --format=esm --outfile=../../agile-pm/api/app.mjs && npx vite build",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}

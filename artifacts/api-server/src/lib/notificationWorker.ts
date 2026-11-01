@@ -119,6 +119,14 @@ async function tick() {
 }
 
 /**
+ * One-shot queue drain for serverless environments where a persistent timer
+ * cannot run: piggyback processing onto incoming API requests. Fire-and-forget.
+ */
+export function drainNotificationQueue(): void {
+  void tick();
+}
+
+/**
  * Start the background notification worker. Idempotent — multiple calls share
  * the same timer.
  */
