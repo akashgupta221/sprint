@@ -15,8 +15,15 @@ export const requireAuth: RequestHandler = (req, res, next) => {
     return;
   }
 
-  const auth = getAuth(req);
-  const userId = auth?.sessionClaims?.["userId"] || auth?.userId;
+  let userId: string | null | undefined;
+  try {
+    const auth = getAuth(req);
+    userId = auth?.sessionClaims?.["userId"] || auth?.userId;
+  } catch {
+    // Malformed/expired tokens must be 401, not an unhandled 500.
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   if (!userId) {
     res.status(401).json({ error: "Unauthorized" });
     return;

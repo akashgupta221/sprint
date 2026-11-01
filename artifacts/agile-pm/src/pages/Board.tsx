@@ -75,7 +75,7 @@ export function Board() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [search, setSearch] = useState("");
 
-  const { data: sprints = [] } = useListSprints(projectId, {
+  const { data: sprints = [], isError: sprintsError } = useListSprints(projectId, {
     query: {
       enabled: !!projectId,
       queryKey: getListSprintsQueryKey(projectId),
@@ -83,7 +83,7 @@ export function Board() {
   });
   const activeSprint = sprints.find((s: any) => s.status === "active");
 
-  const { data: sprint, isLoading } = useGetSprint(activeSprint?.id ?? 0, {
+  const { data: sprint, isLoading, isError: sprintError } = useGetSprint(activeSprint?.id ?? 0, {
     query: {
       enabled: !!activeSprint?.id,
       queryKey: getGetSprintQueryKey(activeSprint?.id ?? 0),
@@ -190,7 +190,18 @@ export function Board() {
           </div>
         </div>
 
-        {isLoading ? (
+        {sprintsError || sprintError ? (
+          <Card className="mt-8">
+            <CardContent className="py-10 text-center">
+              <p className="font-medium text-red-600">Couldn't load the board</p>
+              <p className="mt-1 text-sm text-slate-500">
+                The API didn't respond properly. Refresh to retry — if the API
+                was idle it may need a few seconds to wake up.
+              </p>
+              <Button className="mt-4" onClick={() => window.location.reload()}>Retry</Button>
+            </CardContent>
+          </Card>
+        ) : isLoading ? (
           <p className="mt-10 text-center text-slate-400">Loading board…</p>
         ) : !activeSprint ? (
           <Card className="mt-8">

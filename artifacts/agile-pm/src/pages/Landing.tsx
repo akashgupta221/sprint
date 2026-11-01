@@ -119,10 +119,9 @@ export function Landing() {
                 Demo data is preloaded
               </p>
               <p className="mt-1 text-sm text-[hsl(220_20%_45%)]">
-                After signing in you'll land on a dashboard with two example
-                projects, four team members, and live notifications. Email
-                addresses on the Team page are where assignment notifications
-                are delivered.
+                After signing in you'll land on a live dashboard with sample projects
+                and a working notification pipeline. Email addresses on the
+                Team page are where assignment notifications are delivered.
               </p>
             </div>
           </div>

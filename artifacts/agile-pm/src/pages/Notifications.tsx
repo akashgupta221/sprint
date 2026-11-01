@@ -13,13 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Inbox, CheckCircle2, AlertCircle, Clock, XCircle, RefreshCw, Mail } from "lucide-react";
+import { CircleAlert, Inbox, CheckCircle2, AlertCircle, Clock, XCircle, RefreshCw, Mail } from "lucide-react";
 
 export function Notifications() {
   const queryClient = useQueryClient();
 
   // Polling every 5 seconds
-  const { data: notifications, isLoading } = useListNotifications({
+  const { data: notifications, isLoading, isError: notificationsError } = useListNotifications({
     query: { refetchInterval: 5000, queryKey: getListNotificationsQueryKey() }
   });
 
@@ -41,6 +41,16 @@ export function Notifications() {
 
   if (isLoading && !notifications) {
     return <div className="flex items-center justify-center h-64 text-muted-foreground">Loading notifications...</div>;
+  }
+
+  if (notificationsError) {
+    return (
+      <div className="p-8 max-w-xl">
+        <h1 className="text-2xl font-bold text-red-600">Couldn't load notifications</h1>
+        <p className="mt-2 text-sm text-muted-foreground">The API didn't respond properly — refresh to retry.</p>
+        <Button className="mt-4" onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
   }
 
   const stats = notifications?.reduce((acc, n) => {
@@ -96,6 +106,13 @@ export function Notifications() {
             <CheckCircle2 className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent><div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.sent}</div></CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium">Logged (no SMTP)</CardTitle>
+            <CircleAlert className="h-4 w-4 text-slate-400" />
+          </CardHeader>
+          <CardContent><div className="text-2xl font-bold text-slate-600">{stats.logged}</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">

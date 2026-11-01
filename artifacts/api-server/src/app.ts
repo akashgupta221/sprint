@@ -60,6 +60,23 @@ app.use((req, res, next) => {
 
 if (process.env.NODE_ENV === "production" && process.env.CLERK_SECRET_KEY) {
   app.use(clerkMiddleware());
+  // Malformed/expired Clerk tokens must surface as 401 JSON, never an
+  // unhandled 500 from the auth middleware.
+  app.use(
+    (
+      err: unknown,
+      _req: express.Request,
+      res: express.Response,
+      next: express.NextFunction,
+    ) => {
+      if (!err) return next();
+      logger.warn(
+        { err: err instanceof Error ? err.message : String(err) },
+        "Auth middleware error",
+      );
+      res.status(401).json({ error: "Unauthorized" });
+    },
+  );
 }
 
 app.use("/api", router);
