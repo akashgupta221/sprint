@@ -52,7 +52,7 @@ const clerkAppearance = {
   options: {
     logoPlacement: "inside" as const,
     logoLinkUrl: basePath || "/",
-    logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
+    logoImageUrl: `${window.location.origin}${basePath}/sprint-mark.png`,
   },
   variables: {
     colorPrimary: "hsl(220 45% 35%)",
@@ -67,9 +67,9 @@ const clerkAppearance = {
     borderRadius: "0.5rem",
   },
   elements: {
-    rootBox: "w-full",
+    rootBox: "w-full flex justify-center items-center",
     cardBox:
-      "bg-white rounded-2xl w-[440px] max-w-full overflow-hidden shadow-xl border border-[hsl(160_10%_88%)]",
+      "bg-white rounded-2xl w-full max-w-[400px] overflow-hidden shadow-xl border border-[hsl(160_10%_88%)] mx-auto",
     card: "!shadow-none !border-0 !bg-transparent !rounded-none",
     footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
     headerTitle: "text-[hsl(220_30%_20%)] font-semibold text-xl",
